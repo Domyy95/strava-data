@@ -1,0 +1,7 @@
+commitizen==3.*
+pip-tools==7.*
+pre-commit==3.*
+pytest==8.*
+pytest-cov==5.*
+pytest-runner==6.*
+ruff==0.*

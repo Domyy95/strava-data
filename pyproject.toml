@@ -1,0 +1,22 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src",
+]
+testpaths = "tests"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+version_files = [
+    "src/__init__.py",
+    "pyproject.toml:version",
+    "VERSION"
+]
+bump_message = "bump: version $current_version → $new_version"
+update_changelog_on_bump = true
+annotated_tag = true
