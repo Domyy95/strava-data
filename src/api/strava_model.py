@@ -79,7 +79,7 @@ class XomDestination(BaseModel):
 
 class Xoms(BaseModel):
     kom: str = Field(description="The time at which the KOM was achieved")
-    qom: str = Field(description="The time at which the QOM was achieved")
+    qom: str | None = Field(description="The time at which the QOM was achieved")
     overall: str = Field(description="The time at which the overall best time was achieved")
     destination: XomDestination = Field(description="Dunno what this is")
 
@@ -121,4 +121,6 @@ class DetailedSegment(BaseModel):
         description="An instance of AthleteSegmentStats."
     )
     xoms: Xoms = Field(description="An instance of Xoms.")
-    local_legend: LocalLegendAthlete = Field(description="An instance of LocalLegendAthlete.")
+    local_legend: LocalLegendAthlete | None = Field(
+        description="An instance of LocalLegendAthlete."
+    )

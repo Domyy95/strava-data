@@ -1,7 +1,7 @@
 from typing import List
 import requests
 
-from src.api.strava_model import DetailedSegment, ExplorerResponse
+from src.api.strava_model import DetailedSegment, ExplorerResponse, ExplorerSegment
 
 BASE_URL = "https://www.strava.com/api/v3/"
 
@@ -18,7 +18,7 @@ class StravaAPI:
         activity_type: str = "running",
         min_cat: int = None,
         max_cat: int = None,
-    ) -> ExplorerResponse:
+    ) -> List[ExplorerSegment]:
         """
         Returns the top 10 segments matching a specified query.
         bottom_left_point: The latitude and longitude for the bottom left corner of the search area.
@@ -40,7 +40,8 @@ class StravaAPI:
             },
         )
 
-        return ExplorerResponse.model_validate(api_response.json())
+        explorer_response = ExplorerResponse.model_validate(api_response.json())
+        return explorer_response.segments
 
     def get_segment(self, segment_id: int) -> DetailedSegment:
         """
