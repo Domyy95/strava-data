@@ -1,26 +1,8 @@
-from math import pi, cos
-import streamlit as st
 from streamlit_folium import st_folium
 from streamlit_js_eval import get_geolocation
+from frontend.utils import create_square
+import streamlit as st
 import folium
-
-
-def create_square(lat, lon, size_meters=1000):
-    R = 6378000.0  # Earth radius in meters
-
-    # Coordinate offsets in radians
-    d_lat = size_meters / R
-    d_lon = size_meters / (R * cos(pi * lat / 180))
-
-    d_lat = d_lat * (180 / pi)
-    d_lon = d_lon * (180 / pi)
-
-    sw = [lat - d_lat, lon - d_lon]  # Southwest
-    nw = [lat + d_lat, lon - d_lon]  # Northwest
-    ne = [lat + d_lat, lon + d_lon]  # Northeast
-    se = [lat - d_lat, lon + d_lon]  # Southeast
-
-    return [sw, nw, ne, se, sw]
 
 
 # Default location Lecco
@@ -68,16 +50,17 @@ if f_map.get("last_clicked"):
 form = st.form("Position entry form")
 submit = form.form_submit_button(label="Search segments inside the box")
 
+
 if submit:
-    st.success(
-        f"Stored position: {st.session_state.selected_latitude}, {st.session_state.selected_longitude}"
+    bottom_left = st.session_state.square_coords[0]
+    top_right = st.session_state.square_coords[2]
+
+    segments = st.session_state["strava_api"].explore_segments(
+        bottom_left_point=bottom_left, top_right_point=top_right
     )
-    print(st.session_state.selected_latitude, st.session_state.selected_longitude)
 
-# segments = st.session_state['strava_api'].explore_segments(
-#     bottom_left_point=[45.768661, 9.452020], top_right_point=[45.790124, 9.496888]
-# )
-
-# for segment in segments.segments:
-#     detailed_segment = st.session_state['strava_api'].get_segment(segment.id)
-#     print(detailed_segment.name, detailed_segment.distance, detailed_segment.average_grade)
+    for segment in segments:
+        detailed_segment = st.session_state["strava_api"].get_segment(segment.id)
+        st.write(
+            f"Segment Name: {detailed_segment.name}, Distance: {detailed_segment.distance}, Average Grade: {detailed_segment.average_grade}"
+        )
