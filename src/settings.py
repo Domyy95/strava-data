@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     @field_validator("access_token", mode="before")
     def get_access_token(cls, v, values, **kwargs):
-        print("Getting access token")
+        print("Getting Strava access token")
         payload: dict = {
             "client_id": values.data["client_id"],
             "client_secret": values.data["client_secret"],

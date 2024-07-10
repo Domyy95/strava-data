@@ -1,6 +1,8 @@
+pandas
 pydantic==2.*
 pydantic-settings==2.*
 folium
 streamlit
 streamlit_js_eval
 streamlit_folium
+tabulate
