@@ -12,7 +12,8 @@ class Settings(BaseSettings):
     access_token: str = None
 
     @field_validator("access_token", mode="before")
-    def get_acces_token(cls, v, values, **kwargs):
+    def get_access_token(cls, v, values, **kwargs):
+        print("Getting access token")
         payload: dict = {
             "client_id": values.data["client_id"],
             "client_secret": values.data["client_secret"],
@@ -20,9 +21,12 @@ class Settings(BaseSettings):
             "grant_type": "refresh_token",
             "f": "json",
         }
-        res = requests.post(token_endpoint, data=payload, verify=False)
-        access_token = res.json()["access_token"]
-        return access_token
+        with requests.Session() as session:
+            session.verify = True
+            res = session.post(token_endpoint, data=payload)
+            res.raise_for_status()
+            access_token = res.json()["access_token"]
+            return access_token
 
 
 def get_settings() -> Settings:
