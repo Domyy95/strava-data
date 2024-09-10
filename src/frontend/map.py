@@ -36,7 +36,7 @@ m.add_child(folium.LatLngPopup())
 if "square_coords" in st.session_state:
     folium.PolyLine(st.session_state.square_coords, color="blue", weight=2.5, opacity=1).add_to(m)
 
-f_map = st_folium(m, width=725)
+f_map = st_folium(m, width=725, height=500)
 
 if f_map.get("last_clicked"):
     st.session_state.selected_latitude = f_map["last_clicked"]["lat"]
@@ -69,6 +69,7 @@ if submit:
         table_data = []
         for segment in segments:
             detailed_segment = st.session_state["strava_api"].get_segment(segment.id)
+            segment_url = f"https://www.strava.com/segments/{segment.id}"
             table_data.append(
                 {
                     "Name": detailed_segment.name,
@@ -77,6 +78,7 @@ if submit:
                     "Athlete Count": detailed_segment.athlete_count,
                     "kom": detailed_segment.xoms.kom,
                     "Elevation Profile": f"![Elevation Profile]( {detailed_segment.elevation_profile} )",
+                    "Strava Segment Link": f"[↗️]({segment_url})",
                 }
             )
 
