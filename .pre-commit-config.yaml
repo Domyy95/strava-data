@@ -4,7 +4,7 @@ fail_fast: true
 
 repos:
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: v3.27.0
+      rev: v3.29.0
       hooks:
           - id: commitizen
             stages: [commit-msg]
@@ -19,7 +19,7 @@ repos:
           - id: check-merge-conflict
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: 'v0.5.0'
+      rev: 'v0.6.3'
       hooks:
           - id: ruff
           - id: ruff-format
