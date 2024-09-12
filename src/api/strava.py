@@ -1,7 +1,14 @@
 from typing import List
 import requests
 
-from src.api.strava_model import DetailedSegment, ExplorerResponse, ExplorerSegment
+from src.api.strava_model import (
+    DetailedSegment,
+    ExplorerResponse,
+    ExplorerSegment,
+    DetailedActivity,
+    Laps,
+    Lap,
+)
 
 BASE_URL = "https://www.strava.com/api/v3/"
 
@@ -51,3 +58,22 @@ class StravaAPI:
         url = self.get_url.format(endpoint=f"segments/{segment_id}")
         api_response = requests.get(url)
         return DetailedSegment.model_validate(api_response.json())
+
+    def get_activity(self, activity_id: int) -> DetailedActivity:
+        """
+        Returns the specified activity data.
+        activity_id: The identifier of the activity. https://www.strava.com/activities/{activity_id}
+        """
+        url = self.get_url.format(endpoint=f"activities/{activity_id}")
+        api_response = requests.get(url)
+        return DetailedActivity.model_validate(api_response.json())
+
+    def get_activity_laps(self, activity_id: int) -> List[Lap]:
+        """
+        Returns the laps of the specified activity.
+        activity_id: The identifier of the activity. https://www.strava.com/activities/{activity_id}
+        """
+        url = self.get_url.format(endpoint=f"activities/{activity_id}/laps")
+        api_response = requests.get(url)
+        laps = Laps(laps=api_response.json())
+        return laps.laps

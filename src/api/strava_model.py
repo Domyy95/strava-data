@@ -1,7 +1,62 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field
+from enum import Enum
 
 
+class SportType(str, Enum):
+    AlpineSki = "AlpineSki"
+    BackcountrySki = "BackcountrySki"
+    Badminton = "Badminton"
+    Canoeing = "Canoeing"
+    Crossfit = "Crossfit"
+    EBikeRide = "EBikeRide"
+    Elliptical = "Elliptical"
+    EMountainBikeRide = "EMountainBikeRide"
+    Golf = "Golf"
+    GravelRide = "GravelRide"
+    Handcycle = "Handcycle"
+    HighIntensityIntervalTraining = "HighIntensityIntervalTraining"
+    Hike = "Hike"
+    IceSkate = "IceSkate"
+    InlineSkate = "InlineSkate"
+    Kayaking = "Kayaking"
+    Kitesurf = "Kitesurf"
+    MountainBikeRide = "MountainBikeRide"
+    NordicSki = "NordicSki"
+    Pickleball = "Pickleball"
+    Pilates = "Pilates"
+    Racquetball = "Racquetball"
+    Ride = "Ride"
+    RockClimbing = "RockClimbing"
+    RollerSki = "RollerSki"
+    Rowing = "Rowing"
+    Run = "Run"
+    Sail = "Sail"
+    Skateboard = "Skateboard"
+    Snowboard = "Snowboard"
+    Snowshoe = "Snowshoe"
+    Soccer = "Soccer"
+    Squash = "Squash"
+    StairStepper = "StairStepper"
+    StandUpPaddling = "StandUpPaddling"
+    Surfing = "Surfing"
+    Swim = "Swim"
+    TableTennis = "TableTennis"
+    Tennis = "Tennis"
+    TrailRun = "TrailRun"
+    Velomobile = "Velomobile"
+    VirtualRide = "VirtualRide"
+    VirtualRow = "VirtualRow"
+    VirtualRun = "VirtualRun"
+    Walk = "Walk"
+    WeightTraining = "WeightTraining"
+    Wheelchair = "Wheelchair"
+    Windsurf = "Windsurf"
+    Workout = "Workout"
+    Yoga = "Yoga"
+
+
+# Explore segment and segment objects
 class ExplorerSegment(BaseModel):
     id: int = Field(description="The unique identifier of this segment")
     resource_state: int = Field(description="The resource state of this segment")
@@ -30,18 +85,18 @@ class ExplorerResponse(BaseModel):
 
 
 class AthleteSegmentStats(BaseModel):
-    pr_elapsed_time: int | None = Field(description="The elapsed time ot the PR effort")
-    pr_date: str | None = Field(description="The time at which the PR effort was started")
-    pr_visibility: str | None = Field(
+    pr_elapsed_time: Optional[int] = Field(description="The elapsed time ot the PR effort")
+    pr_date: Optional[str] = Field(description="The time at which the PR effort was started")
+    pr_visibility: Optional[str] = Field(
         description="Visibility of the PR effort. May take one of the following values: everyone, only_me"
     )
-    pr_activity_id: int | None = Field(
+    pr_activity_id: Optional[int] = Field(
         description="The unique identifier of the activity related to the PR effort"
     )
-    pr_activity_visibility: str | None = Field(
+    pr_activity_visibility: Optional[str] = Field(
         description="Visibility of the activity related to the PR effort. May take one of the following values: everyone, only_me"
     )
-    effort_count: int | None = Field(
+    effort_count: Optional[int] = Field(
         description="Number of efforts by the authenticated athlete on this segment"
     )
 
@@ -55,8 +110,8 @@ class PolylineMap(BaseModel):
 
 
 class EffortCounts(BaseModel):
-    overall: str | None = Field(description="The overall best effort count as a string")
-    female: str | None = Field(description="The best effort count for the female")
+    overall: Optional[str] = Field(description="The overall best effort count as a string")
+    female: Optional[str] = Field(description="The best effort count for the female")
 
 
 class LocalLegendAthlete(BaseModel):
@@ -79,7 +134,7 @@ class XomDestination(BaseModel):
 
 class Xoms(BaseModel):
     kom: str = Field(description="The time at which the KOM was achieved")
-    qom: str | None = Field(description="The time at which the QOM was achieved")
+    qom: Optional[str] = Field(description="The time at which the QOM was achieved")
     overall: str = Field(description="The time at which the overall best time was achieved")
     destination: XomDestination = Field(description="Dunno what this is")
 
@@ -100,9 +155,9 @@ class DetailedSegment(BaseModel):
     climb_category: int = Field(
         description="The category of the climb [0, 5]. Higher is harder ie. 5 is Hors catégorie, 0 is uncategorized in climb_category."
     )
-    city: str | None = Field(description="The segments's city.")
-    state: str | None = Field(description="The segments's state or geographical region.")
-    country: str | None = Field(description="The segment's country.")
+    city: Optional[str] = Field(description="The segments's city.")
+    state: Optional[str] = Field(description="The segments's state or geographical region.")
+    country: Optional[str] = Field(description="The segment's country.")
     private: bool = Field(description="Whether this segment is private.")
     hazardous: bool = Field(description="Whether this segment is considered hazardous.")
     starred: bool = Field(
@@ -121,6 +176,310 @@ class DetailedSegment(BaseModel):
         description="An instance of AthleteSegmentStats."
     )
     xoms: Xoms = Field(description="An instance of Xoms.")
-    local_legend: LocalLegendAthlete | None = Field(
+    local_legend: Optional[LocalLegendAthlete] = Field(
         description="An instance of LocalLegendAthlete."
     )
+
+
+# Get Activity and Activity Laps Objects
+class MetaAthlete(BaseModel):
+    id: int = Field(description="The unique identifier of the athlete")
+    resource_state: int = Field(description="The resource state of the athlete")
+
+
+class MetaActivity(BaseModel):
+    id: int = Field(description="The unique identifier of the activity")
+    visibility: str = Field(
+        description="The visibility of the activity. May take one of the following values: everyone, only_me"
+    )
+    resource_state: int = Field(description="The resource state of the activity")
+
+
+class Lap(BaseModel):
+    id: int = Field(description="The unique identifier of this lap")
+    resource_state: int = Field(description="The resource state of the lap")
+    activity: MetaActivity = Field(description="Unique identifier of the activity")
+    athlete: MetaAthlete = Field(description="Unique identifier of the athlete")
+    average_cadence: float = Field(description="The lap's average cadence")
+    average_speed: float = Field(description="The lap's average speed")
+    distance: float = Field(description="The lap's distance, in meters")
+    elapsed_time: int = Field(description="The lap's elapsed time, in seconds")
+    start_index: int = Field(description="The start index of this effort in its activity's stream")
+    end_index: int = Field(description="The end index of this effort in its activity's stream")
+    lap_index: int = Field(description="The index of this lap in the activity it belongs to")
+    max_speed: float = Field(description="The maximum speed of this lat, in meters per second")
+    moving_time: int = Field(description="The lap's moving time, in seconds")
+    name: str = Field(description="The name of the lap")
+    pace_zone: int = Field(description="The athlete's pace zone during this lap")
+    split: int = Field(description="An instance of integer.")
+    start_date: str = Field(description="The time at which the lap was started.")
+    start_date_local: str = Field(
+        description="The time at which the lap was started in the local timezone."
+    )
+    total_elevation_gain: float = Field(description="The elevation gain of this lap, in meters")
+    device_watts: bool = Field(
+        description="For riding efforts, whether the wattage was reported by a dedicated recording device"
+    )
+    average_watts: float = Field(description="The average wattage of this lap")
+    average_heartrate: float = Field(description="The average heart rate of this lap")
+    max_heartrate: float = Field(description="The maximum heart rate of this lap")
+    pace_zone: int = Field(description="The athlete's pace zone during this lap")
+
+
+class Laps(BaseModel):
+    laps: List[Lap] = Field(description="A collection of Lap objects.")
+
+
+class PhotosSummary_primary(BaseModel):
+    id: int = Field(description="The unique identifier of the photo")
+    source: int = Field(description="The source of the photo")
+    unique_id: str = Field(description="The unique identifier of the photo")
+    urls: str = Field(description="The URL of the photo")
+
+
+class PhotosSummary(BaseModel):
+    primary: Optional[PhotosSummary_primary] = Field(description="The URL of the primary photo")
+    count: int = Field(description="The number of photos")
+
+
+class SummaryGear(BaseModel):
+    id: str = Field(description="The gear's unique identifier")
+    primary: bool = Field(description="Whether this gear's is the owner's default one")
+    name: str = Field(description="The gear's name")
+    nickname: str = Field(description="The gear's nickname")
+    resource_state: int = Field(
+        description="Resource state, indicates level of detail. Possible values: 2 -> summary, 3 -> detail"
+    )
+    retired: bool = Field(description="Whether this gear is retired")
+    distance: float = Field(description="The distance logged with this gear")
+    converted_distance: float = Field(description="The distance logged with this gear")
+
+
+class SummarySegment(BaseModel):
+    id: int = Field(description="The unique identifier of this segment")
+    resource_state: int = Field(description="The resource state of this segment")
+    name: str = Field(description="The name of this segment")
+    activity_type: str = Field(description="May take one of the following values: Ride, Run")
+    distance: float = Field(description="The segment's distance, in meters")
+    average_grade: float = Field(description="The segment's average grade, in percents")
+    maximum_grade: float = Field(description="The segments's maximum grade, in percents")
+    elevation_high: float = Field(description="The segments's highest elevation, in meters")
+    elevation_low: float = Field(description="The segments's lowest elevation, in meters")
+    start_latlng: List[float] = Field(description="An instance of LatLng.")
+    end_latlng: List[float] = Field(description="An instance of LatLng.")
+    elevation_profile: Optional[str] = Field(
+        description="The URL for the segment's elevation profile image"
+    )
+    elevation_profiles: Optional[str] = Field(
+        description="The URL for the segment's elevation profile image"
+    )
+    climb_category: int = Field(
+        description="The category of the climb [0, 5]. Higher is harder ie. 5 is Hors catégorie, 0 is uncategorized in climb_category."
+    )
+    city: Optional[str] = Field(description="The segments's city.")
+    state: Optional[str] = Field(description="The segments's state or geographical region.")
+    country: Optional[str] = Field(description="The segment's country.")
+    private: bool = Field(description="Whether this segment is private.")
+    hazardous: bool = Field(description="Whether this segment is considered hazardous.")
+    starred: bool = Field(
+        description="Whether this segment is starred by the authenticated athlete."
+    )
+
+
+class SegmentEffort(BaseModel):
+    id: int = Field(description="The unique identifier of this effort")
+    resource_state: int = Field(description="The resource state of this effort")
+    name: str = Field(description="The name of the segment on which this effort was performed")
+    activity: MetaActivity = Field(description="An instance of MetaActivity.")
+    athlete: MetaAthlete = Field(description="An instance of MetaAthlete.")
+    elapsed_time: int = Field(description="The effort's elapsed time")
+    moving_time: int = Field(description="The effort's moving time")
+    start_date: str = Field(description="The time at which the effort was started.")
+    start_date_local: str = Field(
+        description="The time at which the effort was started in the local timezone."
+    )
+    distance: float = Field(description="The effort's distance in meters")
+    achievements: List[str] = Field(description="The achievements of the effort")
+    start_index: int = Field(description="The start index of this effort in its activity's stream")
+    end_index: int = Field(description="The end index of this effort in its activity's stream")
+
+
+class DetailedSegmentEffort(SegmentEffort):
+    average_cadence: float = Field(description="The effort's average cadence")
+    device_watts: bool = Field(
+        description="For riding efforts, whether the wattage was reported by a dedicated recording device"
+    )
+    average_watts: float = Field(description="The average wattage of this effort")
+    average_heartrate: float = Field(
+        description="The heart heart rate of the athlete during this effort"
+    )
+    max_heartrate: float = Field(
+        description="The maximum heart rate of the athlete during this effort"
+    )
+    segment: SummarySegment = Field(description="An instance of SummarySegment.")
+    pr_rank: Optional[int] = Field(
+        description="The rank of the effort on the athlete's leaderboard if it belongs in the top 3 at the time of upload"
+    )
+    visibility: str = Field(
+        description="The visibility of the effort. May take one of the following values: everyone, only_me"
+    )
+    kom_rank: Optional[int] = Field(
+        description="The rank of the effort on the global leaderboard if it belongs in the top 10 at the time of upload"
+    )
+    hidden: bool = Field(
+        description="Whether this effort should be hidden when viewed within an activity"
+    )
+
+
+class StatVisibility(BaseModel):
+    type: str = Field(description="Type of parameter")
+    visibility: str = Field(
+        description="Visibility of the parameter. May take one of the following values: everyone, only_me"
+    )
+
+
+class Trend(BaseModel):
+    speeds: List[float] = Field(description="The speed of the activity")
+    current_activity_index: int = Field(description="The index of the current activity")
+    min_speed: float = Field(description="The minimum speed of the activity")
+    mid_speed: float = Field(description="The mid speed of the activity")
+    max_speed: float = Field(description="The maximum speed of the activity")
+    direction: int = Field(description="The direction of the activity")
+
+
+class SimilarActivity(BaseModel):
+    effort_count: int = Field(description="Effort perceved")
+    average_speed: float = Field(description="The average speed of the activity")
+    min_average_speed: float = Field(description="The minimum average speed of the activity")
+    mid_average_speed: float = Field(description="The mid average speed of the activity")
+    max_average_speed: float = Field(description="The maximum average speed of the activity")
+    pr_rank: Optional[int] = Field(
+        description="The rank of the effort on the athlete's leaderboard if it belongs in the top 3 at the time of upload"
+    )
+    frequency_milestone: Optional[int] = Field(description="The frequency of the milestone")
+    trend: Trend = Field(description="The trend of the activity")
+    resource_state: int = Field(description="The resource state of the activity")
+
+
+class SplitMetric(BaseModel):
+    distance: float = Field(description="The distance of the split")
+    elapsed_time: int = Field(description="The elapsed time of the split")
+    elevation_difference: float = Field(description="The elevation difference of the split")
+    moving_time: int = Field(description="The moving time of the split")
+    split: int = Field(description="The split")
+    average_speed: float = Field(description="The average speed of the split")
+    average_grade_adjusted_speed: float = Field(
+        description="The average grade adjusted speed of the split"
+    )
+    average_heartrate: float = Field(description="The average heart rate of the split")
+    pace_zone: int = Field(description="The pace zone of the split")
+
+
+class DetailedActivity(BaseModel):
+    id: int = Field(description="The unique identifier of the activity")
+    resource_state: int = Field(description="The resource state of the lap")
+    external_id: str = Field(description="The identifier provided at upload time")
+    upload_id: int = Field(
+        description="The identifier of the upload that resulted in this activity"
+    )
+    athlete: MetaAthlete = Field(description="An instance of MetaAthlete.")
+    name: str = Field(description="The name of the activity")
+    distance: float = Field(description="The activity's distance, in meters")
+    moving_time: int = Field(description="The activity's moving time, in seconds")
+    elapsed_time: int = Field(description="The activity's elapsed time, in seconds")
+    total_elevation_gain: float = Field(description="The activity's total elevation gain.")
+    elev_high: float = Field(description="The activity's highest elevation, in meters")
+    elev_low: float = Field(description="The activity's lowest elevation, in meters")
+    type: str = Field(description="Deprecated. Prefer to use sport_type")
+    sport_type: SportType = Field(description="An instance of SportType.")
+    start_date: str = Field(description="The time at which the activity was started.")
+    start_date_local: str = Field(
+        description="The time at which the activity was started in the local timezone."
+    )
+    timezone: str = Field(description="The timezone of the activity")
+    utc_offset: int = Field(description="The UTC offset of the activity, in seconds")
+    location_city: Optional[str] = Field(description="The city where the activity was started")
+    location_state: Optional[str] = Field(description="The state where the activity was started")
+    location_country: Optional[str] = Field(
+        description="The country where the activity was started"
+    )
+    start_latlng: List[float] = Field(description="An instance of LatLng.")
+    end_latlng: List[float] = Field(description="An instance of LatLng.")
+    achievement_count: int = Field(
+        description="The number of achievements gained during this activity"
+    )
+    kudos_count: int = Field(description="The number of kudos given for this activity")
+    comment_count: int = Field(description="The number of comments for this activity")
+    athlete_count: int = Field(
+        description="The number of athletes for taking part in a group activity"
+    )
+    photo_count: int = Field(description="The number of Instagram photos for this activity")
+    total_photo_count: int = Field(
+        description="The number of Instagram and Strava photos for this activity"
+    )
+    map: PolylineMap = Field(description="An instance of PolylineMap.")
+    trainer: bool = Field(description="Whether this activity was recorded on a training machine")
+    commute: bool = Field(description="Whether this activity is a commute")
+    manual: bool = Field(description="Whether this activity was created manually")
+    private: bool = Field(description="Whether this activity is private")
+    visibility: str = Field(
+        description="The visibility of the activity. May take one of the following values: everyone, only_me"
+    )
+    flagged: bool = Field(description="Whether this activity is flagged")
+    workout_type: int = Field(description="The activity's workout type")
+    upload_id_str: str = Field(description="The unique identifier of the upload in string format")
+    average_speed: float = Field(description="The activity's average speed, in meters per second")
+    max_speed: float = Field(description="The activity's max speed, in meters per second")
+    has_kudoed: bool = Field(description="Whether the logged-in athlete has kudoed this activity")
+    hide_from_home: bool = Field(description="Whether the activity is muted")
+    has_heartrate: bool = Field(description="Whether the activity has heartrate data")
+    average_heartrate: float = Field(description="The activity's average heart rate")
+    max_heartrate: float = Field(description="The activity's maximum heart rate")
+    heartrate_opt_out: bool = Field(
+        description="Whether the user has opted out of heartrate analysis"
+    )
+    display_hide_heartrate_option: bool = Field(
+        description="Whether this activity should be hidden from heartrate analysis sections"
+    )
+    from_accepted_tag: bool = Field(description="Whether the activity was recorded on a device")
+    pr_count: int = Field(description="The number of PRs gained during this activity")
+    suffer_score: float = Field(description="The activity's suffer score")
+    perceived_exertion: Optional[int] = Field(description="The activity's perceived exertion")
+    prefer_perceived_exertion: bool = Field(
+        description="Whether the user prefers the perceived exertion"
+    )
+    gear_id: str = Field(description="The id of the gear for the activity")
+    kilojoules: float = Field(description="The total work done in kilojoules during this activity.")
+    average_cadence: float = Field(description="The average cadence during this activity.")
+    average_watts: float = Field(description="Average power output in watts during this activity.")
+    device_watts: bool = Field(
+        description="Whether the watts are from a power meter, false if estimated"
+    )
+    max_watts: int = Field(description="Rides with power meter data only")
+    weighted_average_watts: int = Field(
+        description="Similar to Normalized Power. Rides with power meter data only"
+    )
+    description: str = Field(description="The description of the activity")
+    photos: PhotosSummary = Field(description="The URL of the activity's photos")
+    gear: SummaryGear = Field(description="An instance of Gear.")
+    calories: float = Field(description="The number of kilocalories consumed during this activity")
+    segment_efforts: List[DetailedSegmentEffort] = Field(
+        description="A collection of DetailedSegmentEffort objects."
+    )
+    device_name: str = Field(description="The name of the device used to record the activity")
+    embed_token: str = Field(description="The token used to embed a Strava activity")
+    splits_metric: List[SplitMetric] = Field(
+        description="The splits of this activity in metric units (for runs)"
+    )
+    splits_standard: List[SplitMetric] = Field(
+        description="The splits of this activity in imperial units (for runs)"
+    )
+    laps: List[Lap] = Field(description="A collection of Lap objects.")
+    best_efforts: List[SegmentEffort] = Field(
+        description="A collection of DetailedSegmentEffort objects."
+    )
+    stats_visibility: List[StatVisibility] = Field(
+        description="The visibility of the activity's stats. May take one of the following values: everyone, only_me"
+    )
+    similar_activities: SimilarActivity = Field(description="The similar activities")
+    available_zones: List[str] = Field(description="The available columns table for this activity")
