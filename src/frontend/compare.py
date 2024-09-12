@@ -27,15 +27,15 @@ def fetch_activity_laps(url) -> pd.DataFrame:
     return result
 
 
-st.title("Compare 2 Equal Runs")
+st.title("Compare Runs")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    link1 = st.text_input("Activity Link 1")
+    link1 = st.text_input("Your Activity Link")
 
 with col2:
-    link2 = st.text_input("Activity Link 2")
+    link2 = st.text_input("Other Activity Link")
 
 if link1 and link2:
     link1_valid = validate_strava_link(link1)
