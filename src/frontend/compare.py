@@ -19,9 +19,7 @@ def convert_seconds_to_minutes(seconds):
 
 def fetch_activity_laps(url) -> pd.DataFrame:
     activity_id = int(url.split("/")[-1])
-    laps = st.session_state["strava_api"].get_activity(activity_id=activity_id)
-
-    print(laps)
+    laps = st.session_state["strava_api"].get_activity_laps(activity_id=activity_id)
     result = pd.DataFrame([lap.dict() for lap in laps])
     result["time_per_km"] = result["elapsed_time"] / (result["distance"] / 1000)
     result = result[["distance", "elapsed_time", "time_per_km"]]
