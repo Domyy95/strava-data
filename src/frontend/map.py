@@ -1,12 +1,14 @@
+from typing import List
 import pandas as pd
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
 from streamlit_js_eval import get_geolocation
 from frontend.utils import create_square
+from src.api.strava_model import ExplorerSegment
 
 
-def fetch_segments(bottom_left, top_right):
+def fetch_segments(bottom_left, top_right) -> List[ExplorerSegment]:
     segments = st.session_state["strava_api"].explore_segments(
         bottom_left_point=bottom_left, top_right_point=top_right
     )
