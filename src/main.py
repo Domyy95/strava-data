@@ -9,10 +9,15 @@ def load_settings():
     return get_settings()
 
 
+@st.cache_data
+def load_strava_api(access_token):
+    return StravaAPI(access_token)
+
+
 def run():
     settings = load_settings()
     if "strava_api" not in st.session_state:
-        st.session_state["strava_api"] = StravaAPI(settings.access_token)
+        st.session_state["strava_api"] = load_strava_api(settings.access_token)
 
     home()
 

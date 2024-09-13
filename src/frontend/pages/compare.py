@@ -1,20 +1,16 @@
 import pandas as pd
 import streamlit as st
 
+from src.frontend.utils import convert_seconds_to_minutes
 
-def validate_strava_link(link):
+
+def validate_strava_activity_link(link):
     if (
         link.startswith("https://www.strava.com/activities/")
         and link[len("https://www.strava.com/activities/") :].isdigit()
     ):
         return True
     return False
-
-
-def convert_seconds_to_minutes(seconds):
-    minutes = int(seconds // 60)
-    remaining_seconds = int(seconds % 60)
-    return f"{minutes}:{remaining_seconds:02d}"
 
 
 def fetch_activity_laps(url) -> pd.DataFrame:
@@ -38,8 +34,8 @@ with col2:
     link2 = st.text_input("Other Activity Link")
 
 if link1 and link2:
-    link1_valid = validate_strava_link(link1)
-    link2_valid = validate_strava_link(link2)
+    link1_valid = validate_strava_activity_link(link1)
+    link2_valid = validate_strava_activity_link(link2)
 
     if link1_valid and link2_valid:
         if st.button("Compute"):

@@ -17,3 +17,9 @@ def create_square(lat, lon, square_size=1600):
     se = [lat - d_lat, lon + d_lon]  # Southeast
 
     return [sw, nw, ne, se, sw]
+
+
+def convert_seconds_to_minutes(seconds):
+    minutes = int(seconds // 60)
+    remaining_seconds = int(seconds % 60)
+    return f"{minutes}:{remaining_seconds:02d}"
