@@ -1,6 +1,6 @@
-# Strava-data
+# Strava Insight
 
-My Project Description
+This project goal is to get insights from Strava activities, visualizing them and provide some useful strava tools.
 
 ### Project setup
 
@@ -53,7 +53,7 @@ ruff-format..............................................................Failed
 ### Dependencies management
 
 There are 2 levels of dependencies:
-- development dependencies: they are all the dependencies needed to develop on the current repository, such as pytest and ruff 
+- development dependencies: they are all the dependencies needed to develop on the current repository, such as pytest and ruff
 - library/package dependencies: they are all dependencies used by the library
 
 To add more dependencies it is necessary to modify the requirements*.in files and run the following command:

@@ -1,12 +1,12 @@
 from math import pi, cos
 
 
-def create_square(lat, lon, size_meters=800):
+def create_square(lat, lon, square_size=1600):
     R = 6378000.0  # Earth radius in meters
 
     # Coordinate offsets in radians
-    d_lat = size_meters / R
-    d_lon = size_meters / (R * cos(pi * lat / 180))
+    d_lat = (square_size / 2) / R
+    d_lon = (square_size / 2) / (R * cos(pi * lat / 180))
 
     d_lat = d_lat * (180 / pi)
     d_lon = d_lon * (180 / pi)

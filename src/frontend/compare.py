@@ -27,7 +27,7 @@ def fetch_activity_laps(url) -> pd.DataFrame:
     return result
 
 
-st.title("Compare Runs")
+st.title("⏱️ Compare Runs")
 
 col1, col2 = st.columns(2)
 

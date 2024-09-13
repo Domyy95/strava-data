@@ -43,7 +43,9 @@ if "selected_longitude" not in st.session_state:
     st.session_state.selected_longitude = longitude
 
 
-st.title("Map Search")
+st.title("🗺️ Segment Map Search")
+
+size = st.slider(label="Square Size (in km)", min_value=1.0, max_value=4.0, value=1.0, step=0.1)
 
 # Initialize the map
 m = folium.Map(location=[latitude, longitude], zoom_start=14)
@@ -60,7 +62,9 @@ if f_map.get("last_clicked"):
     st.session_state.selected_longitude = f_map["last_clicked"]["lng"]
 
     st.session_state.square_coords = create_square(
-        st.session_state.selected_latitude, st.session_state.selected_longitude
+        st.session_state.selected_latitude,
+        st.session_state.selected_longitude,
+        square_size=size * 1000,
     )
 
     # Clear the previous map instance and add updated elements
