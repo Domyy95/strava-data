@@ -2,6 +2,8 @@ from typing import List
 import requests
 
 from src.api.strava_model import (
+    ActivityStats,
+    DetailedAthlete,
     DetailedSegment,
     ExplorerResponse,
     ExplorerSegment,
@@ -17,6 +19,13 @@ class StravaAPI:
     def __init__(self, access_token):
         self.access_token = access_token
         self.get_url = BASE_URL + "{endpoint}" + "?access_token=" + self.access_token
+        self.authenticated_athlete = self.__get_authenticated_athlete()
+        self.authenticated_athlete_stats = self.get_athlete_stats(self.authenticated_athlete.id)
+
+    def __get_authenticated_athlete(self):
+        url = self.get_url.format(endpoint="/athlete")
+        api_response = requests.get(url)
+        return DetailedAthlete.model_validate(api_response.json())
 
     def explore_segments(
         self,
@@ -77,3 +86,8 @@ class StravaAPI:
         api_response = requests.get(url)
         laps = Laps(laps=api_response.json())
         return laps.laps
+
+    def get_athlete_stats(self, profile_id: int):
+        url = self.get_url.format(endpoint=f"/athletes/{profile_id}/stats")
+        api_response = requests.get(url)
+        return ActivityStats.model_validate(api_response.json())

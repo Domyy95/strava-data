@@ -1,59 +1,121 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from enum import Enum
+from src.api.strava_enums import SportType, ActivityType
 
 
-class SportType(str, Enum):
-    AlpineSki = "AlpineSki"
-    BackcountrySki = "BackcountrySki"
-    Badminton = "Badminton"
-    Canoeing = "Canoeing"
-    Crossfit = "Crossfit"
-    EBikeRide = "EBikeRide"
-    Elliptical = "Elliptical"
-    EMountainBikeRide = "EMountainBikeRide"
-    Golf = "Golf"
-    GravelRide = "GravelRide"
-    Handcycle = "Handcycle"
-    HighIntensityIntervalTraining = "HighIntensityIntervalTraining"
-    Hike = "Hike"
-    IceSkate = "IceSkate"
-    InlineSkate = "InlineSkate"
-    Kayaking = "Kayaking"
-    Kitesurf = "Kitesurf"
-    MountainBikeRide = "MountainBikeRide"
-    NordicSki = "NordicSki"
-    Pickleball = "Pickleball"
-    Pilates = "Pilates"
-    Racquetball = "Racquetball"
-    Ride = "Ride"
-    RockClimbing = "RockClimbing"
-    RollerSki = "RollerSki"
-    Rowing = "Rowing"
-    Run = "Run"
-    Sail = "Sail"
-    Skateboard = "Skateboard"
-    Snowboard = "Snowboard"
-    Snowshoe = "Snowshoe"
-    Soccer = "Soccer"
-    Squash = "Squash"
-    StairStepper = "StairStepper"
-    StandUpPaddling = "StandUpPaddling"
-    Surfing = "Surfing"
-    Swim = "Swim"
-    TableTennis = "TableTennis"
-    Tennis = "Tennis"
-    TrailRun = "TrailRun"
-    Velomobile = "Velomobile"
-    VirtualRide = "VirtualRide"
-    VirtualRow = "VirtualRow"
-    VirtualRun = "VirtualRun"
-    Walk = "Walk"
-    WeightTraining = "WeightTraining"
-    Wheelchair = "Wheelchair"
-    Windsurf = "Windsurf"
-    Workout = "Workout"
-    Yoga = "Yoga"
+class SummaryGear(BaseModel):
+    id: str = Field(description="The gear's unique identifier")
+    primary: bool = Field(description="Whether this gear's is the owner's default one")
+    name: str = Field(description="The gear's name")
+    nickname: str = Field(description="The gear's nickname")
+    resource_state: int = Field(
+        description="Resource state, indicates level of detail. Possible values: 2 -> summary, 3 -> detail"
+    )
+    retired: bool = Field(description="Whether this gear is retired")
+    distance: float = Field(description="The distance logged with this gear")
+    converted_distance: float = Field(description="The distance logged with this gear")
+
+
+class SummaryClub(BaseModel):
+    id: int = Field(description="The club's unique identifier")
+    resource_state: int = Field(
+        description="Resource state, indicates level of detail. Possible values: 1 -> meta, 2 -> summary, 3 -> detail"
+    )
+    name: str = Field(description="The club's name")
+    profile_medium: str = Field(description="URL to a 60x60 pixel profile picture")
+    cover_photo: str = Field(description="URL to a ~1185x580 pixel cover photo")
+    cover_photo_small: str = Field(description="URL to a ~360x176 pixel cover photo")
+    activity_types: List[ActivityType] = Field(
+        description="The activity types that count for a club. This takes precedence over sport_type."
+    )
+    activity_types_icon: str = Field(description="icon name of the club's activity types")
+    dimensions: List[str] = Field(description="The club's stats dimensions")
+    sport_type: str = Field(
+        description="Deprecated. Prefer to use activity_types. May take one of the following values: cycling, running, triathlon, other"
+    )
+    localized_sport_type: str = Field(description="The club's localized sport type")
+    city: str = Field(description="The club's city")
+    state: str = Field(description="The club's state or geographical region")
+    country: str = Field(description="The club's country")
+    private: bool = Field(description="Whether the club is private")
+    member_count: int = Field(description="The club's member count")
+    featured: bool = Field(description="Whether the club is featured or not")
+    verified: bool = Field(description="Whether the club is verified or not")
+    url: str = Field(description="The club's vanity URL")
+    membership: str = Field(
+        description="The authenticated athlete's membership status of the club."
+    )
+    admin: bool = Field(description="Whether the authenticated athlete is an admin of the club")
+    owner: bool = Field(description="Whether the authenticated athlete is the owner of the club")
+
+
+class DetailedAthlete(BaseModel):
+    id: int = Field(description="The unique identifier of the athlete")
+    username: str = Field(description="The athlete's username")
+    resource_state: int = Field(description="The resource state of the athlete")
+    firstname: str = Field(description="The athlete's first name")
+    lastname: str = Field(description="The athlete's last name")
+    bio: str = Field(description="The athlete's profile bio")
+    city: str = Field(description="The athlete's city")
+    state: Optional[str] = Field(description="The athlete's state")
+    country: Optional[str] = Field(description="The athlete's country")
+    sex: str = Field(description="The athlete's sex. May take one of the following values: M, F")
+    premium: bool = Field(
+        description="Deprecated. Use summit field instead. Whether the athlete has any Summit subscription."
+    )
+    summit: bool = Field(description="Whether the athlete has any Summit subscription")
+    created_at: str = Field(description="The time at which the athlete was created")
+    updated_at: str = Field(description="The time at which the athlete was last updated")
+    badge_type_id: int = Field(description="The badge type id of the athlete")
+    weight: float = Field(description="The athlete's weight")
+    profile_medium: str = Field(description="URL to a 62x62 pixel profile picture")
+    profile: str = Field(description="URL to a 124x124 pixel profile picture")
+    friend: Optional[str] = Field(description="The athlete's friend status")
+    follower: Optional[str] = Field(description="The athlete's follower status")
+    blocked: bool = Field(description="The athlete's blocked status")
+    can_follow: bool = Field(description="The athlete's follow status")
+    follower_count: int = Field(description="The athlete's follower count")
+    friend_count: int = Field(description="The athlete's friend count")
+    mutual_friend_count: int = Field(description="The athlete's mutual friend count")
+    athlete_type: int = Field(description="The athlete's type")
+    date_preference: str = Field(description="The athlete's date preference. Format '%m/%d/%Y")
+    measurement_preference: str = Field(
+        description="The athlete's preferred unit system. May take one of the following values: feet, meters"
+    )
+    clubs: List[SummaryClub] = Field(description="The athlete's clubs")
+    postable_clubs_count: int = Field(description="The number of clubs the athlete can post to")
+    ftp: Optional[int] = Field(description="The athlete's FTP (Functional Threshold Power)")
+    bikes: List[SummaryGear] = Field(description="The athlete's bikes")
+    shoes: List[SummaryGear] = Field(description="The athlete's shoes")
+    is_winback_via_upload: bool = Field(description="Whether the athlete is a winback via upload")
+    is_winback_via_view: bool = Field(description="Whether the athlete is a winback via view")
+
+
+class ActivityTotal(BaseModel):
+    count: int = Field(description="The total number of activities.")
+    distance: float = Field(description="The total distance covered.")
+    moving_time: int = Field(description="The total moving time.")
+    elapsed_time: int = Field(description="The total elapsed time.")
+    elevation_gain: float = Field(description="The total elevation gain.")
+    achievement_count: Optional[int] = Field(
+        default=None, description="The total number of achievements."
+    )
+
+
+class ActivityStats(BaseModel):
+    biggest_ride_distance: float = Field(description="The longest distance ridden by the athlete.")
+    biggest_climb_elevation_gain: float = Field(
+        description="The highest elevation climbed by the athlete."
+    )
+    recent_ride_totals: ActivityTotal = Field(description="Last month ride totals.")
+    all_ride_totals: ActivityTotal = Field(description="The all time ride totals.")
+    recent_run_totals: ActivityTotal = Field(description="Last month run totals.")
+    all_run_totals: ActivityTotal = Field(description="The all time run totals.")
+    recent_swim_totals: ActivityTotal = Field(description="Last month swim totals.")
+    all_swim_totals: ActivityTotal = Field(description="The all time swim totals.")
+    ytd_ride_totals: ActivityTotal = Field(description="The year to date ride totals.")
+    ytd_run_totals: ActivityTotal = Field(description="The year to date run totals.")
+    ytd_swim_totals: ActivityTotal = Field(description="The year to date swim totals.")
 
 
 # Explore segment and segment objects
@@ -240,19 +302,6 @@ class PhotosSummary_primary(BaseModel):
 class PhotosSummary(BaseModel):
     primary: Optional[PhotosSummary_primary] = Field(description="The URL of the primary photo")
     count: int = Field(description="The number of photos")
-
-
-class SummaryGear(BaseModel):
-    id: str = Field(description="The gear's unique identifier")
-    primary: bool = Field(description="Whether this gear's is the owner's default one")
-    name: str = Field(description="The gear's name")
-    nickname: str = Field(description="The gear's nickname")
-    resource_state: int = Field(
-        description="Resource state, indicates level of detail. Possible values: 2 -> summary, 3 -> detail"
-    )
-    retired: bool = Field(description="Whether this gear is retired")
-    distance: float = Field(description="The distance logged with this gear")
-    converted_distance: float = Field(description="The distance logged with this gear")
 
 
 class SummarySegment(BaseModel):
