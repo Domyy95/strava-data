@@ -20,6 +20,15 @@ def create_square(lat, lon, square_size=1600):
 
 
 def convert_seconds_to_minutes(seconds):
+    negative = False
+    if seconds < 0:
+        negative = True
+        seconds = abs(seconds)
+
     minutes = int(seconds // 60)
     remaining_seconds = int(seconds % 60)
-    return f"{minutes}:{remaining_seconds:02d}"
+    result = f"{minutes}:{remaining_seconds:02d}"
+
+    if negative:
+        result = "-" + result
+    return result
