@@ -260,32 +260,35 @@ class MetaActivity(BaseModel):
 class Lap(BaseModel):
     id: int = Field(description="The unique identifier of this lap")
     resource_state: int = Field(description="The resource state of the lap")
+    name: str = Field(description="The name of the lap")
     activity: MetaActivity = Field(description="Unique identifier of the activity")
     athlete: MetaAthlete = Field(description="Unique identifier of the athlete")
-    average_cadence: float = Field(description="The lap's average cadence")
-    average_speed: float = Field(description="The lap's average speed")
-    distance: float = Field(description="The lap's distance, in meters")
     elapsed_time: int = Field(description="The lap's elapsed time, in seconds")
-    start_index: int = Field(description="The start index of this effort in its activity's stream")
-    end_index: int = Field(description="The end index of this effort in its activity's stream")
-    lap_index: int = Field(description="The index of this lap in the activity it belongs to")
-    max_speed: float = Field(description="The maximum speed of this lat, in meters per second")
     moving_time: int = Field(description="The lap's moving time, in seconds")
-    name: str = Field(description="The name of the lap")
-    pace_zone: int = Field(description="The athlete's pace zone during this lap")
-    split: int = Field(description="An instance of integer.")
     start_date: str = Field(description="The time at which the lap was started.")
     start_date_local: str = Field(
         description="The time at which the lap was started in the local timezone."
     )
+    distance: float = Field(description="The lap's distance, in meters")
+    average_speed: float = Field(description="The lap's average speed")
+    max_speed: float = Field(description="The maximum speed of this lat, in meters per second")
+    lap_index: int = Field(description="The index of this lap in the activity it belongs to")
+    split: int = Field(description="An instance of integer.")
+    start_index: int = Field(description="The start index of this effort in its activity's stream")
+    end_index: int = Field(description="The end index of this effort in its activity's stream")
     total_elevation_gain: float = Field(description="The elevation gain of this lap, in meters")
+    average_cadence: float = Field(description="The lap's average cadence")
     device_watts: bool = Field(
         description="For riding efforts, whether the wattage was reported by a dedicated recording device"
     )
     average_watts: float = Field(description="The average wattage of this lap")
-    average_heartrate: float = Field(description="The average heart rate of this lap")
-    max_heartrate: float = Field(description="The maximum heart rate of this lap")
     pace_zone: int = Field(description="The athlete's pace zone during this lap")
+    average_heartrate: Optional[float] = Field(
+        description="The average heart rate of this lap.", default=None
+    )
+    max_heartrate: Optional[float] = Field(
+        description="The maximum heart rate of this lap", default=None
+    )
 
 
 class Laps(BaseModel):

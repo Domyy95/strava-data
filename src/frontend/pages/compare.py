@@ -17,12 +17,32 @@ def fetch_activity_laps(url, name) -> pd.DataFrame:
     activity_id = int(url.split("/")[-1])
     laps = st.session_state["strava_api"].get_activity_laps(activity_id=activity_id)
     result = pd.DataFrame([lap.dict() for lap in laps])
-    result[f"Elapsed Time {name}"] = result["elapsed_time"].apply(convert_seconds_to_minutes)
-    result[f"elapsed_time_{name}"] = result["elapsed_time"]
-    return result[[f"Elapsed Time {name}", f"elapsed_time_{name}"]]
+    result[f"Elapsed Time {name}"] = (
+        result["elapsed_time"].apply(convert_seconds_to_minutes).fillna("0:00")
+    )
+    result[f"elapsed_time_{name}"] = result["elapsed_time"].fillna(0)
+    result[f"Average Heartrate {name}"] = result["average_heartrate"].fillna(0)
+    return result[[f"Elapsed Time {name}", f"elapsed_time_{name}", f"Average Heartrate {name}"]]
 
 
-def highlight_best_row(row):
+def convert_time_to_minutes(time_str):
+    """Converts a time string in the format 'MM:SS' or 'HH:MM:SS' to total minutes."""
+    if time_str == 0:
+        time_str = "0:00"
+
+    time_parts = list(map(int, time_str.split(":")))
+
+    if len(time_parts) == 2:
+        minutes, seconds = time_parts
+        return minutes + seconds / 60
+    elif len(time_parts) == 3:
+        hours, minutes, seconds = time_parts
+        return hours * 60 + minutes + seconds / 60
+    else:
+        raise ValueError(f"Unexpected time format: {time_str}")
+
+
+def highlight_best_rows(row):
     styles = ["" for _ in row]
 
     col_index_1 = 1  # Second column (Elapsed Time 1)
@@ -30,10 +50,25 @@ def highlight_best_row(row):
     value1 = row[col_index_1]
     value2 = row[col_index_2]
 
-    if value1 == min(value1, value2):
-        styles[col_index_1] = "background-color: green"
-    if value2 == min(value1, value2):
-        styles[col_index_2] = "background-color: green"
+    if value1 != 0 and value2 != 0:
+        time1_in_minutes = convert_time_to_minutes(value1)
+        time2_in_minutes = convert_time_to_minutes(value2)
+
+        if time1_in_minutes == min(time1_in_minutes, time2_in_minutes):
+            styles[col_index_1] = "background-color: green"
+        if time2_in_minutes == min(time1_in_minutes, time2_in_minutes):
+            styles[col_index_2] = "background-color: green"
+
+    col_index_1 = 4
+    col_index_2 = 5
+    value1 = row[col_index_1]
+    value2 = row[col_index_2]
+
+    if value1 != 0 and value2 != 0:
+        if value1 == min(value1, value2):
+            styles[col_index_1] = "background-color: red"
+        if value2 == min(value1, value2):
+            styles[col_index_2] = "background-color: red"
 
     return styles
 
@@ -57,11 +92,29 @@ if link1 and link2:
             activity1_df = fetch_activity_laps(link1, 1)
             activity2_df = fetch_activity_laps(link2, 2)
             activities = pd.concat([activity1_df, activity2_df], axis=1)
-            activities["Difference"] = activities["elapsed_time_1"] - activities["elapsed_time_2"]
-            activities["Difference"] = activities["Difference"].apply(convert_seconds_to_minutes)
+            activities = activities.fillna(0)
+            activities["Difference Elapsed"] = (
+                activities["elapsed_time_1"] - activities["elapsed_time_2"]
+            )
+            activities["Difference Elapsed"] = activities["Difference Elapsed"].apply(
+                convert_seconds_to_minutes
+            )
+            activities["Difference Hearthrate"] = (
+                activities["Average Heartrate 1"] - activities["Average Heartrate 2"]
+            )
             activities.drop(columns=["elapsed_time_1", "elapsed_time_2"], inplace=True)
+            activities = activities[
+                [
+                    "Elapsed Time 1",
+                    "Elapsed Time 2",
+                    "Difference Elapsed",
+                    "Average Heartrate 1",
+                    "Average Heartrate 2",
+                    "Difference Hearthrate",
+                ]
+            ]
             activities.insert(0, "Km", range(1, len(activities) + 1))
-            st.dataframe(activities.style.apply(highlight_best_row, axis=1), hide_index=True)
+            st.dataframe(activities.style.apply(highlight_best_rows, axis=1), hide_index=True)
 
     else:
         if not link1_valid:
