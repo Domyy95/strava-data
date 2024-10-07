@@ -13,9 +13,7 @@ def validate_strava_activity_link(link):
     return False
 
 
-def fetch_activity_laps(url, name) -> pd.DataFrame:
-    activity_id = int(url.split("/")[-1])
-    laps = st.session_state["strava_api"].get_activity_laps(activity_id=activity_id)
+def clean_activity_laps(laps, name) -> pd.DataFrame:
     result = pd.DataFrame([lap.dict() for lap in laps])
     result[f"Elapsed Time {name}"] = (
         result["elapsed_time"].apply(convert_seconds_to_minutes).fillna("0:00")
@@ -73,6 +71,37 @@ def highlight_best_rows(row):
     return styles
 
 
+def build_compare_data(link1: str, link2: str):
+    activity_id = int(link1.split("/")[-1])
+    activity1 = st.session_state["strava_api"].get_activity(activity_id=activity_id)
+    activity_id = int(link2.split("/")[-1])
+    activity2 = st.session_state["strava_api"].get_activity(activity_id=activity_id)
+    activity1_laps = clean_activity_laps(activity1.laps, 1)
+    activity2_laps = clean_activity_laps(activity2.laps, 2)
+    activities = pd.concat([activity1_laps, activity2_laps], axis=1)
+    activities = activities.fillna(0)
+    activities["Difference Elapsed"] = activities["elapsed_time_1"] - activities["elapsed_time_2"]
+    activities["Difference Elapsed"] = activities["Difference Elapsed"].apply(
+        convert_seconds_to_minutes
+    )
+    activities["Difference Hearthrate"] = (
+        activities["Average Heartrate 1"] - activities["Average Heartrate 2"]
+    )
+    activities.drop(columns=["elapsed_time_1", "elapsed_time_2"], inplace=True)
+    activities = activities[
+        [
+            "Elapsed Time 1",
+            "Elapsed Time 2",
+            "Difference Elapsed",
+            "Average Heartrate 1",
+            "Average Heartrate 2",
+            "Difference Hearthrate",
+        ]
+    ]
+    activities.insert(0, "Km", range(1, len(activities) + 1))
+    st.dataframe(activities.style.apply(highlight_best_rows, axis=1), hide_index=True)
+
+
 st.title("⏱️ Compare Runs")
 
 col1, col2 = st.columns(2)
@@ -89,32 +118,7 @@ if link1 and link2:
 
     if link1_valid and link2_valid:
         if st.button("Compute"):
-            activity1_df = fetch_activity_laps(link1, 1)
-            activity2_df = fetch_activity_laps(link2, 2)
-            activities = pd.concat([activity1_df, activity2_df], axis=1)
-            activities = activities.fillna(0)
-            activities["Difference Elapsed"] = (
-                activities["elapsed_time_1"] - activities["elapsed_time_2"]
-            )
-            activities["Difference Elapsed"] = activities["Difference Elapsed"].apply(
-                convert_seconds_to_minutes
-            )
-            activities["Difference Hearthrate"] = (
-                activities["Average Heartrate 1"] - activities["Average Heartrate 2"]
-            )
-            activities.drop(columns=["elapsed_time_1", "elapsed_time_2"], inplace=True)
-            activities = activities[
-                [
-                    "Elapsed Time 1",
-                    "Elapsed Time 2",
-                    "Difference Elapsed",
-                    "Average Heartrate 1",
-                    "Average Heartrate 2",
-                    "Difference Hearthrate",
-                ]
-            ]
-            activities.insert(0, "Km", range(1, len(activities) + 1))
-            st.dataframe(activities.style.apply(highlight_best_rows, axis=1), hide_index=True)
+            build_compare_data(link1, link2)
 
     else:
         if not link1_valid:

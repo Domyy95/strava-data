@@ -296,14 +296,19 @@ class Laps(BaseModel):
 
 
 class PhotosSummary_primary(BaseModel):
-    id: int = Field(description="The unique identifier of the photo")
-    source: int = Field(description="The source of the photo")
     unique_id: str = Field(description="The unique identifier of the photo")
-    urls: str = Field(description="The URL of the photo")
+    urls: dict[str, str] = Field(description="The URL of the photo")
+    source: int = Field(description="The source of the photo")
+    media_type: int = Field(description="The media type of the photo")
 
 
 class PhotosSummary(BaseModel):
-    primary: Optional[PhotosSummary_primary] = Field(description="The URL of the primary photo")
+    primary: Optional[PhotosSummary_primary] = Field(
+        description="The URL of the primary photo", default=None
+    )
+    use_primary_photo: Optional[bool] = Field(
+        description="Whether to use the primary photo", default=None
+    )
     count: int = Field(description="The number of photos")
 
 
@@ -338,6 +343,12 @@ class SummarySegment(BaseModel):
     )
 
 
+class Achievement(BaseModel):
+    type_id: int = Field(description="The achievement's type id")
+    type: str = Field(description="The achievement's type")
+    rank: int = Field(description="The achievement's rank")
+
+
 class SegmentEffort(BaseModel):
     id: int = Field(description="The unique identifier of this effort")
     resource_state: int = Field(description="The resource state of this effort")
@@ -351,7 +362,7 @@ class SegmentEffort(BaseModel):
         description="The time at which the effort was started in the local timezone."
     )
     distance: float = Field(description="The effort's distance in meters")
-    achievements: List[str] = Field(description="The achievements of the effort")
+    achievements: List[Achievement] = Field(description="The achievements of the effort")
     start_index: int = Field(description="The start index of this effort in its activity's stream")
     end_index: int = Field(description="The end index of this effort in its activity's stream")
 
@@ -362,11 +373,11 @@ class DetailedSegmentEffort(SegmentEffort):
         description="For riding efforts, whether the wattage was reported by a dedicated recording device"
     )
     average_watts: float = Field(description="The average wattage of this effort")
-    average_heartrate: float = Field(
-        description="The heart heart rate of the athlete during this effort"
+    average_heartrate: Optional[float] = Field(
+        description="The heart heart rate of the athlete during this effort", default=None
     )
-    max_heartrate: float = Field(
-        description="The maximum heart rate of the athlete during this effort"
+    max_heartrate: Optional[float] = Field(
+        description="The maximum heart rate of the athlete during this effort", default=None
     )
     segment: SummarySegment = Field(description="An instance of SummarySegment.")
     pr_rank: Optional[int] = Field(
@@ -423,27 +434,24 @@ class SplitMetric(BaseModel):
     average_grade_adjusted_speed: float = Field(
         description="The average grade adjusted speed of the split"
     )
-    average_heartrate: float = Field(description="The average heart rate of the split")
+    average_heartrate: Optional[float] = Field(
+        description="The average heart rate of the split", default=None
+    )
     pace_zone: int = Field(description="The pace zone of the split")
 
 
 class DetailedActivity(BaseModel):
-    id: int = Field(description="The unique identifier of the activity")
     resource_state: int = Field(description="The resource state of the lap")
-    external_id: str = Field(description="The identifier provided at upload time")
-    upload_id: int = Field(
-        description="The identifier of the upload that resulted in this activity"
-    )
     athlete: MetaAthlete = Field(description="An instance of MetaAthlete.")
     name: str = Field(description="The name of the activity")
     distance: float = Field(description="The activity's distance, in meters")
     moving_time: int = Field(description="The activity's moving time, in seconds")
     elapsed_time: int = Field(description="The activity's elapsed time, in seconds")
     total_elevation_gain: float = Field(description="The activity's total elevation gain.")
-    elev_high: float = Field(description="The activity's highest elevation, in meters")
-    elev_low: float = Field(description="The activity's lowest elevation, in meters")
     type: str = Field(description="Deprecated. Prefer to use sport_type")
     sport_type: SportType = Field(description="An instance of SportType.")
+    workout_type: int = Field(description="The activity's workout type")
+    id: int = Field(description="The unique identifier of the activity")
     start_date: str = Field(description="The time at which the activity was started.")
     start_date_local: str = Field(
         description="The time at which the activity was started in the local timezone."
@@ -455,8 +463,6 @@ class DetailedActivity(BaseModel):
     location_country: Optional[str] = Field(
         description="The country where the activity was started"
     )
-    start_latlng: List[float] = Field(description="An instance of LatLng.")
-    end_latlng: List[float] = Field(description="An instance of LatLng.")
     achievement_count: int = Field(
         description="The number of achievements gained during this activity"
     )
@@ -466,9 +472,6 @@ class DetailedActivity(BaseModel):
         description="The number of athletes for taking part in a group activity"
     )
     photo_count: int = Field(description="The number of Instagram photos for this activity")
-    total_photo_count: int = Field(
-        description="The number of Instagram and Strava photos for this activity"
-    )
     map: PolylineMap = Field(description="An instance of PolylineMap.")
     trainer: bool = Field(description="Whether this activity was recorded on a training machine")
     commute: bool = Field(description="Whether this activity is a commute")
@@ -478,48 +481,51 @@ class DetailedActivity(BaseModel):
         description="The visibility of the activity. May take one of the following values: everyone, only_me"
     )
     flagged: bool = Field(description="Whether this activity is flagged")
-    workout_type: int = Field(description="The activity's workout type")
-    upload_id_str: str = Field(description="The unique identifier of the upload in string format")
+    gear_id: Optional[str] = Field(description="The id of the gear for the activity")
+    start_latlng: List[float] = Field(description="An instance of LatLng.")
+    end_latlng: List[float] = Field(description="An instance of LatLng.")
     average_speed: float = Field(description="The activity's average speed, in meters per second")
     max_speed: float = Field(description="The activity's max speed, in meters per second")
-    has_kudoed: bool = Field(description="Whether the logged-in athlete has kudoed this activity")
-    hide_from_home: bool = Field(description="Whether the activity is muted")
+    average_cadence: float = Field(description="The average cadence during this activity.")
+    average_watts: float = Field(description="Average power output in watts during this activity.")
+    max_watts: int = Field(description="Rides with power meter data only")
+    weighted_average_watts: int = Field(
+        description="Similar to Normalized Power. Rides with power meter data only"
+    )
+    kilojoules: float = Field(description="The total work done in kilojoules during this activity.")
+    device_watts: bool = Field(
+        description="Whether the watts are from a power meter, false if estimated"
+    )
     has_heartrate: bool = Field(description="Whether the activity has heartrate data")
-    average_heartrate: float = Field(description="The activity's average heart rate")
-    max_heartrate: float = Field(description="The activity's maximum heart rate")
     heartrate_opt_out: bool = Field(
         description="Whether the user has opted out of heartrate analysis"
     )
     display_hide_heartrate_option: bool = Field(
         description="Whether this activity should be hidden from heartrate analysis sections"
     )
+    elev_high: float = Field(description="The activity's highest elevation, in meters")
+    elev_low: float = Field(description="The activity's lowest elevation, in meters")
+    upload_id: int = Field(
+        description="The identifier of the upload that resulted in this activity"
+    )
+    upload_id_str: str = Field(description="The unique identifier of the upload in string format")
+    external_id: str = Field(description="The identifier provided at upload time")
     from_accepted_tag: bool = Field(description="Whether the activity was recorded on a device")
     pr_count: int = Field(description="The number of PRs gained during this activity")
+    total_photo_count: int = Field(
+        description="The number of Instagram and Strava photos for this activity"
+    )
+    has_kudoed: bool = Field(description="Whether the logged-in athlete has kudoed this activity")
     suffer_score: float = Field(description="The activity's suffer score")
+    description: str = Field(description="The description of the activity")
+    calories: float = Field(description="The number of kilocalories consumed during this activity")
     perceived_exertion: Optional[int] = Field(description="The activity's perceived exertion")
     prefer_perceived_exertion: bool = Field(
         description="Whether the user prefers the perceived exertion"
     )
-    gear_id: str = Field(description="The id of the gear for the activity")
-    kilojoules: float = Field(description="The total work done in kilojoules during this activity.")
-    average_cadence: float = Field(description="The average cadence during this activity.")
-    average_watts: float = Field(description="Average power output in watts during this activity.")
-    device_watts: bool = Field(
-        description="Whether the watts are from a power meter, false if estimated"
-    )
-    max_watts: int = Field(description="Rides with power meter data only")
-    weighted_average_watts: int = Field(
-        description="Similar to Normalized Power. Rides with power meter data only"
-    )
-    description: str = Field(description="The description of the activity")
-    photos: PhotosSummary = Field(description="The URL of the activity's photos")
-    gear: SummaryGear = Field(description="An instance of Gear.")
-    calories: float = Field(description="The number of kilocalories consumed during this activity")
     segment_efforts: List[DetailedSegmentEffort] = Field(
         description="A collection of DetailedSegmentEffort objects."
     )
-    device_name: str = Field(description="The name of the device used to record the activity")
-    embed_token: str = Field(description="The token used to embed a Strava activity")
     splits_metric: List[SplitMetric] = Field(
         description="The splits of this activity in metric units (for runs)"
     )
@@ -530,8 +536,13 @@ class DetailedActivity(BaseModel):
     best_efforts: List[SegmentEffort] = Field(
         description="A collection of DetailedSegmentEffort objects."
     )
+    gear: Optional[SummaryGear] = Field(description="An instance of Gear.", default=None)
+    photos: PhotosSummary = Field(description="The URL of the activity's photos")
     stats_visibility: List[StatVisibility] = Field(
         description="The visibility of the activity's stats. May take one of the following values: everyone, only_me"
     )
+    hide_from_home: bool = Field(description="Whether the activity is muted")
+    device_name: str = Field(description="The name of the device used to record the activity")
+    embed_token: str = Field(description="The token used to embed a Strava activity")
     similar_activities: SimilarActivity = Field(description="The similar activities")
     available_zones: List[str] = Field(description="The available columns table for this activity")
