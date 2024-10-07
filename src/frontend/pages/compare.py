@@ -15,12 +15,10 @@ def validate_strava_activity_link(link):
 
 def clean_activity_laps(laps, name) -> pd.DataFrame:
     result = pd.DataFrame([lap.dict() for lap in laps])
-    result[f"Elapsed Time {name}"] = (
-        result["elapsed_time"].apply(convert_seconds_to_minutes).fillna("0:00")
-    )
-    result[f"elapsed_time_{name}"] = result["elapsed_time"].fillna(0)
-    result[f"Average Heartrate {name}"] = result["average_heartrate"].fillna(0)
-    return result[[f"Elapsed Time {name}", f"elapsed_time_{name}", f"Average Heartrate {name}"]]
+    result[f"Time {name}"] = result["elapsed_time"].apply(convert_seconds_to_minutes).fillna("0:00")
+    result[f"time_{name}"] = result["elapsed_time"].fillna(0)
+    result[f"Avg Heartrate {name}"] = result["average_heartrate"].fillna(0)
+    return result[[f"Time {name}", f"time_{name}", f"Avg Heartrate {name}"]]
 
 
 def convert_time_to_minutes(time_str):
@@ -57,16 +55,18 @@ def highlight_best_rows(row):
         if time2_in_minutes == min(time1_in_minutes, time2_in_minutes):
             styles[col_index_2] = "background-color: green"
 
-    col_index_1 = 4
-    col_index_2 = 5
-    value1 = row[col_index_1]
-    value2 = row[col_index_2]
+    # check if there are columns for heartrate
+    if len(row) > 4:
+        col_index_1 = 4
+        col_index_2 = 5
+        value1 = row[col_index_1]
+        value2 = row[col_index_2]
 
-    if value1 != 0 and value2 != 0:
-        if value1 == min(value1, value2):
-            styles[col_index_1] = "background-color: red"
-        if value2 == min(value1, value2):
-            styles[col_index_2] = "background-color: red"
+        if value1 != 0 and value2 != 0:
+            if value1 == min(value1, value2):
+                styles[col_index_1] = "background-color: red"
+            if value2 == min(value1, value2):
+                styles[col_index_2] = "background-color: red"
 
     return styles
 
@@ -76,26 +76,29 @@ def build_compare_data(link1: str, link2: str):
     activity1 = st.session_state["strava_api"].get_activity(activity_id=activity_id)
     activity_id = int(link2.split("/")[-1])
     activity2 = st.session_state["strava_api"].get_activity(activity_id=activity_id)
-    activity1_laps = clean_activity_laps(activity1.laps, 1)
-    activity2_laps = clean_activity_laps(activity2.laps, 2)
+    name1 = activity1.name + " " + activity1.start_date.split("-")[0]
+    name2 = activity2.name + " " + activity2.start_date.split("-")[0]
+    if name1 == name2:
+        name1 += " 1"
+        name2 += " 2"
+    activity1_laps = clean_activity_laps(activity1.laps, name1)
+    activity2_laps = clean_activity_laps(activity2.laps, name2)
     activities = pd.concat([activity1_laps, activity2_laps], axis=1)
     activities = activities.fillna(0)
-    activities["Difference Elapsed"] = activities["elapsed_time_1"] - activities["elapsed_time_2"]
-    activities["Difference Elapsed"] = activities["Difference Elapsed"].apply(
-        convert_seconds_to_minutes
-    )
+    activities["Difference"] = activities[f"time_{name1}"] - activities[f"time_{name2}"]
+    activities["Difference"] = activities["Difference"].apply(convert_seconds_to_minutes)
     activities["Difference Hearthrate"] = (
-        activities["Average Heartrate 1"] - activities["Average Heartrate 2"]
+        activities[f"Avg Heartrate {name1}"] - activities[f"Avg Heartrate {name2}"]
     )
-    activities.drop(columns=["elapsed_time_1", "elapsed_time_2"], inplace=True)
+    activities.drop(columns=[f"time_{name1}", f"time_{name2}"], inplace=True)
     activities = activities[
         [
-            "Elapsed Time 1",
-            "Elapsed Time 2",
-            "Difference Elapsed",
-            "Average Heartrate 1",
-            "Average Heartrate 2",
-            "Difference Hearthrate",
+            f"Time {name1}",
+            f"Time {name2}",
+            "Difference",
+            # f"Avg Heartrate {name1}",
+            # f"Avg Heartrate {name2}",
+            # "Difference Hearthrate",
         ]
     ]
     activities.insert(0, "Km", range(1, len(activities) + 1))

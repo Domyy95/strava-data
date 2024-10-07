@@ -533,9 +533,7 @@ class DetailedActivity(BaseModel):
         description="The splits of this activity in imperial units (for runs)"
     )
     laps: List[Lap] = Field(description="A collection of Lap objects.")
-    best_efforts: List[SegmentEffort] = Field(
-        description="A collection of DetailedSegmentEffort objects."
-    )
+    best_efforts: List[SegmentEffort] = Field(description="A collection of SegmentEffort objects.")
     gear: Optional[SummaryGear] = Field(description="An instance of Gear.", default=None)
     photos: PhotosSummary = Field(description="The URL of the activity's photos")
     stats_visibility: List[StatVisibility] = Field(
