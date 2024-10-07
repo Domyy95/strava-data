@@ -13,6 +13,22 @@ def validate_strava_activity_link(link):
     return False
 
 
+def get_activities_data(link1, link2):
+    activity_id = int(link1.split("/")[-1])
+    activity1 = st.session_state["strava_api"].get_activity(activity_id=activity_id)
+    activity_id = int(link2.split("/")[-1])
+    activity2 = st.session_state["strava_api"].get_activity(activity_id=activity_id)
+    if not activity1 or not activity2:
+        if not activity1:
+            # CRAWL IT
+            st.write("Activity 1 not found.")
+        if not activity2:
+            # CRAWL IT
+            st.write("Activity 2 not found.")
+
+    return activity1, activity2
+
+
 def clean_activity_laps(laps, name) -> pd.DataFrame:
     result = pd.DataFrame([lap.dict() for lap in laps])
     result[f"Time {name}"] = result["elapsed_time"].apply(convert_seconds_to_hm).fillna("0:00")
@@ -71,11 +87,7 @@ def highlight_best_rows(row):
     return styles
 
 
-def build_compare_data(link1: str, link2: str):
-    activity_id = int(link1.split("/")[-1])
-    activity1 = st.session_state["strava_api"].get_activity(activity_id=activity_id)
-    activity_id = int(link2.split("/")[-1])
-    activity2 = st.session_state["strava_api"].get_activity(activity_id=activity_id)
+def build_compare_data(activity1: str, activity2: str):
     name1 = activity1.name + " " + activity1.start_date.split("-")[0]
     name2 = activity2.name + " " + activity2.start_date.split("-")[0]
     if name1 == name2:
@@ -160,7 +172,9 @@ if link1 and link2:
 
     if link1_valid and link2_valid:
         if st.button("Compute"):
-            build_compare_data(link1, link2)
+            activity1, activity2 = get_activities_data(link1, link2)
+            if activity1 and activity2:
+                build_compare_data(activity1, activity2)
 
     else:
         if not link1_valid:

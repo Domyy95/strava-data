@@ -23,6 +23,17 @@ class StravaAPI:
         self.authenticated_athlete = self.__get_authenticated_athlete()
         self.authenticated_athlete_stats = self.get_athlete_stats(self.authenticated_athlete.id)
 
+    def handle_api_error(self, api_response, activity_id: int):
+        """Handles API errors and raises ValueError if the activity is not found."""
+        if api_response.status_code == 404 or "errors" in api_response.json():
+            error_message = api_response.json().get("message", "Unknown error")
+            if error_message == "Resource Not Found":
+                print(f"Error: Activity {activity_id} not found.")
+                raise ValueError(f"Activity {activity_id} not found.")
+
+        # Raise exception for other HTTP errors
+        api_response.raise_for_status()
+
     def __get_authenticated_athlete(self):
         url = self.get_url.format(endpoint="/athlete")
         api_response = requests.get(url)
@@ -78,9 +89,17 @@ class StravaAPI:
         activity_id: The identifier of the activity. https://www.strava.com/activities/{activity_id}
         """
         url = self.get_url.format(endpoint=f"activities/{activity_id}")
-        api_response = requests.get(url)
+
+        try:
+            api_response = requests.get(url)
+            self.handle_api_error(api_response, activity_id)
+
+        except ValueError:
+            return None
+
         return DetailedActivity.model_validate(api_response.json())
 
+    @lru_cache()
     def get_activity_laps(self, activity_id: int) -> List[Lap]:
         """
         Returns the laps of the specified activity.
@@ -88,6 +107,7 @@ class StravaAPI:
         """
         url = self.get_url.format(endpoint=f"activities/{activity_id}/laps")
         api_response = requests.get(url)
+        self.handle_api_error(api_response, activity_id)
         laps = Laps(laps=api_response.json())
         return laps.laps
 
