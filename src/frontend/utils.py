@@ -19,16 +19,22 @@ def create_square(lat, lon, square_size=1600):
     return [sw, nw, ne, se, sw]
 
 
-def convert_seconds_to_minutes(seconds):
+def convert_seconds_to_hm(seconds):
     negative = False
     if seconds < 0:
         negative = True
         seconds = abs(seconds)
 
-    minutes = int(seconds // 60)
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
     remaining_seconds = int(seconds % 60)
-    result = f"{minutes}:{remaining_seconds:02d}"
+
+    if hours > 0:
+        result = f"{hours}:{minutes:02d}:{remaining_seconds:02d}"
+    else:
+        result = f"{minutes}:{remaining_seconds:02d}"
 
     if negative:
         result = "-" + result
+
     return result

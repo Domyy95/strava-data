@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from src.frontend.utils import convert_seconds_to_minutes
+from src.frontend.utils import convert_seconds_to_hm
 
 
 def validate_strava_activity_link(link):
@@ -15,7 +15,7 @@ def validate_strava_activity_link(link):
 
 def clean_activity_laps(laps, name) -> pd.DataFrame:
     result = pd.DataFrame([lap.dict() for lap in laps])
-    result[f"Time {name}"] = result["elapsed_time"].apply(convert_seconds_to_minutes).fillna("0:00")
+    result[f"Time {name}"] = result["elapsed_time"].apply(convert_seconds_to_hm).fillna("0:00")
     result[f"time_{name}"] = result["elapsed_time"].fillna(0)
     result[f"Avg Heartrate {name}"] = result["average_heartrate"].fillna(0)
     return result[[f"Time {name}", f"time_{name}", f"Avg Heartrate {name}"]]
@@ -86,7 +86,7 @@ def build_compare_data(link1: str, link2: str):
     activities = pd.concat([activity1_laps, activity2_laps], axis=1)
     activities = activities.fillna(0)
     activities["Difference"] = activities[f"time_{name1}"] - activities[f"time_{name2}"]
-    activities["Difference"] = activities["Difference"].apply(convert_seconds_to_minutes)
+    activities["Difference"] = activities["Difference"].apply(convert_seconds_to_hm)
     activities["Difference Hearthrate"] = (
         activities[f"Avg Heartrate {name1}"] - activities[f"Avg Heartrate {name2}"]
     )
@@ -102,7 +102,46 @@ def build_compare_data(link1: str, link2: str):
         ]
     ]
     activities.insert(0, "Km", range(1, len(activities) + 1))
+
+    total_time_1 = convert_seconds_to_hm(activity1.elapsed_time)
+    total_time_2 = convert_seconds_to_hm(activity2.elapsed_time)
+    diff = convert_seconds_to_hm(activity1.elapsed_time - activity2.elapsed_time)
+
+    final_row = pd.DataFrame(
+        {
+            "Km": ["Total"],
+            f"Time {name1}": [total_time_1],
+            f"Time {name2}": [total_time_2],
+            "Difference": [diff],
+        }
+    )
+
+    activities = pd.concat([activities, final_row], ignore_index=True)
     st.dataframe(activities.style.apply(highlight_best_rows, axis=1), hide_index=True)
+
+    comparison = {
+        "Name": [name1, name2],
+        "Distance (km)": [activity1.distance / 1000, activity2.distance / 1000],
+        "Moving Time (min)": [
+            convert_seconds_to_hm(activity1.moving_time),
+            convert_seconds_to_hm(activity2.moving_time),
+        ],
+        "Elapsed Time (min)": [
+            convert_seconds_to_hm(activity1.elapsed_time),
+            convert_seconds_to_hm(activity2.elapsed_time),
+        ],
+        "Average Speed (m/s)": [activity1.average_speed, activity2.average_speed],
+        "Total Elevation Gain (m)": [
+            activity1.total_elevation_gain,
+            activity2.total_elevation_gain,
+        ],
+        "Average Cadence (spm)": [activity1.average_cadence, activity2.average_cadence],
+        "Suffer Score": [activity1.suffer_score, activity2.suffer_score],
+        "Calories Burned": [activity1.calories, activity2.calories],
+    }
+
+    df = pd.DataFrame(comparison, index=["Activity 1", "Activity 2"])
+    st.dataframe(df)
 
 
 st.title("⏱️ Compare Runs")
