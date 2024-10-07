@@ -1,4 +1,5 @@
 from typing import List
+from functools import lru_cache
 import requests
 
 from src.api.strava_model import (
@@ -27,6 +28,7 @@ class StravaAPI:
         api_response = requests.get(url)
         return DetailedAthlete.model_validate(api_response.json())
 
+    @lru_cache()
     def explore_segments(
         self,
         bottom_left_point: List[float],
@@ -59,6 +61,7 @@ class StravaAPI:
         explorer_response = ExplorerResponse.model_validate(api_response.json())
         return explorer_response.segments
 
+    @lru_cache()
     def get_segment(self, segment_id: int) -> DetailedSegment:
         """
         Returns the specified segment data.
@@ -68,6 +71,7 @@ class StravaAPI:
         api_response = requests.get(url)
         return DetailedSegment.model_validate(api_response.json())
 
+    @lru_cache()
     def get_activity(self, activity_id: int) -> DetailedActivity:
         """
         Returns the specified activity data.
@@ -87,6 +91,7 @@ class StravaAPI:
         laps = Laps(laps=api_response.json())
         return laps.laps
 
+    @lru_cache()
     def get_athlete_stats(self, profile_id: int):
         url = self.get_url.format(endpoint=f"/athletes/{profile_id}/stats")
         api_response = requests.get(url)
