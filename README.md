@@ -8,7 +8,7 @@ The project uses [pre-commit](https://pre-commit.com/) cli to add git hooks for:
 - release management: [commitizen](https://commitizen-tools.github.io/commitizen/)
 - linter and code formatter: [ruff](https://docs.astral.sh/ruff/)
 
-In order to setup the development environment it is possible to run the following command on terminal:
+In order to setup the development environment it is possible to run the following command on terminal inside the project folder:
 
 ```shell
 $ make setup-dev-env
@@ -18,17 +18,21 @@ This command will install development requirements from requirements-dev.txt fil
 and setup ***pre-commit*** hooks.
 
 ## Run the project
-1. create an .env file in the root of the project with the following content:
+1. retrieve the client_id, client_secret and refresh_token from the strava api. You can follow the instructions [here](https://developers.strava.com/docs/getting-started/#account) to get them.
+
+2. create an .env file in the root of the project with the following content:
 ```shell
 CLIENT_ID=your_client_id
 CLIENT_SECRET=your_client_secret
 REFRESH_TOKEN=your_refresh_token
 ```
-2. run the following command to install the dependencies:
+
+3. run the following command to install the dependencies:
 ```shell
 $ make install
 ```
-3. run the following command to run the project:
+
+4. run the following command to run the project:
 ```shell
 $ make run
 ```
