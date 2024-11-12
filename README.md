@@ -2,7 +2,7 @@
 
 This project goal is to get insights from Strava activities, visualizing them and provide some useful strava tools.
 
-### Project setup
+## Project setup
 
 The project uses [pre-commit](https://pre-commit.com/) cli to add git hooks for:
 - release management: [commitizen](https://commitizen-tools.github.io/commitizen/)
@@ -17,7 +17,7 @@ $ make setup-dev-env
 This command will install development requirements from requirements-dev.txt file, including pytest,
 and setup ***pre-commit*** hooks.
 
-### Run the project
+## Run the project
 1. create an .env file in the root of the project with the following content:
 ```shell
 CLIENT_ID=your_client_id
@@ -53,7 +53,7 @@ or if you use vs code you can just add this configuration to your launch.json fi
 ```
 
 
-#### Git hooks
+## Git hooks
 Git hook scripts are useful for identifying simple issues before submission to code review.
 We run our hooks on every commit to automatically point out issues in code such as missing semicolons, trailing whitespace, and debug statements.
 
