@@ -17,6 +17,38 @@ $ make setup-dev-env
 This command will install development requirements from requirements-dev.txt file, including pytest,
 and setup ***pre-commit*** hooks.
 
+### Run the project
+1. create an .env file in the root of the project with the following content:
+```shell
+CLIENT_ID=your_client_id
+CLIENT_SECRET=your_client_secret
+REFRESH_TOKEN=your_refresh_token
+```
+2. run the following command to run the project:
+```shell
+$ make run
+```
+
+or if you use vs code you can just add this configuration to your launch.json file:
+```json
+{
+    "configurations": [
+        {
+            "name": "Run",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "streamlit",
+            "args": [
+                "run",
+                "src/main.py"
+            ],
+        }
+
+    ]
+}
+```
+
+
 #### Git hooks
 Git hook scripts are useful for identifying simple issues before submission to code review.
 We run our hooks on every commit to automatically point out issues in code such as missing semicolons, trailing whitespace, and debug statements.

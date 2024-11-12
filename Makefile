@@ -24,6 +24,7 @@ help:
 	@echo   - make bump-version-minor: release as minor
 	@echo   - make bump-version-major: release as major
 	@echo   - make bump-version-patch: release as patch
+	@echo   - make run: run the streamlit app
 	@echo "------------------------------------"
 
 
@@ -83,3 +84,5 @@ bump-version-major: fetch-tags setup-dev-env
 bump-version-patch: fetch-tags setup-dev-env
 	cz bump --increment PATCH
 
+run:
+	python -m streamlit run src/main.py
