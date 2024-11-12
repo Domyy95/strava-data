@@ -24,7 +24,11 @@ CLIENT_ID=your_client_id
 CLIENT_SECRET=your_client_secret
 REFRESH_TOKEN=your_refresh_token
 ```
-2. run the following command to run the project:
+2. run the following command to install the dependencies:
+```shell
+$ make install
+```
+3. run the following command to run the project:
 ```shell
 $ make run
 ```
