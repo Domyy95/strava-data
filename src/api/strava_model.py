@@ -51,7 +51,7 @@ class SummaryClub(BaseModel):
 
 class DetailedAthlete(BaseModel):
     id: int = Field(description="The unique identifier of the athlete")
-    username: str = Field(description="The athlete's username")
+    username: Optional[str] = Field(description="The athlete's username", default=None)
     resource_state: int = Field(description="The resource state of the athlete")
     firstname: str = Field(description="The athlete's first name")
     lastname: str = Field(description="The athlete's last name")
@@ -70,25 +70,40 @@ class DetailedAthlete(BaseModel):
     weight: float = Field(description="The athlete's weight")
     profile_medium: str = Field(description="URL to a 62x62 pixel profile picture")
     profile: str = Field(description="URL to a 124x124 pixel profile picture")
-    friend: Optional[str] = Field(description="The athlete's friend status")
-    follower: Optional[str] = Field(description="The athlete's follower status")
-    blocked: bool = Field(description="The athlete's blocked status")
-    can_follow: bool = Field(description="The athlete's follow status")
-    follower_count: int = Field(description="The athlete's follower count")
-    friend_count: int = Field(description="The athlete's friend count")
-    mutual_friend_count: int = Field(description="The athlete's mutual friend count")
-    athlete_type: int = Field(description="The athlete's type")
-    date_preference: str = Field(description="The athlete's date preference. Format '%m/%d/%Y")
-    measurement_preference: str = Field(
-        description="The athlete's preferred unit system. May take one of the following values: feet, meters"
+
+    # Account pro fields ??
+    friend: Optional[str] = Field(description="The athlete's friend status", default=None)
+    follower: Optional[str] = Field(description="The athlete's follower status", default=None)
+    blocked: Optional[bool] = Field(description="The athlete's blocked status", default=None)
+    can_follow: Optional[bool] = Field(description="The athlete's follow status", default=None)
+    follower_count: Optional[int] = Field(description="The athlete's follower count", default=None)
+    friend_count: Optional[int] = Field(description="The athlete's friend count", default=None)
+    mutual_friend_count: Optional[int] = Field(
+        description="The athlete's mutual friend count", default=None
     )
-    clubs: List[SummaryClub] = Field(description="The athlete's clubs")
-    postable_clubs_count: int = Field(description="The number of clubs the athlete can post to")
-    ftp: Optional[int] = Field(description="The athlete's FTP (Functional Threshold Power)")
-    bikes: List[SummaryGear] = Field(description="The athlete's bikes")
-    shoes: List[SummaryGear] = Field(description="The athlete's shoes")
-    is_winback_via_upload: bool = Field(description="Whether the athlete is a winback via upload")
-    is_winback_via_view: bool = Field(description="Whether the athlete is a winback via view")
+    athlete_type: Optional[int] = Field(description="The athlete's type", default=None)
+    date_preference: Optional[str] = Field(
+        description="The athlete's date preference. Format '%m/%d/%Y", default=None
+    )
+    measurement_preference: Optional[str] = Field(
+        description="The athlete's preferred unit system. May take one of the following values: feet, meters",
+        default=None,
+    )
+    clubs: Optional[List[SummaryClub]] = Field(description="The athlete's clubs", default=None)
+    postable_clubs_count: Optional[int] = Field(
+        description="The number of clubs the athlete can post to", default=None
+    )
+    ftp: Optional[int] = Field(
+        description="The athlete's FTP (Functional Threshold Power)", default=None
+    )
+    bikes: Optional[List[SummaryGear]] = Field(description="The athlete's bikes", default=None)
+    shoes: Optional[List[SummaryGear]] = Field(description="The athlete's shoes", default=None)
+    is_winback_via_upload: Optional[bool] = Field(
+        description="Whether the athlete is a winback via upload", default=None
+    )
+    is_winback_via_view: Optional[bool] = Field(
+        description="Whether the athlete is a winback via view", default=None
+    )
 
 
 class ActivityTotal(BaseModel):

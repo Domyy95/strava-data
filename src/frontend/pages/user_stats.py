@@ -40,13 +40,14 @@ def display_user_stats(athlete: DetailedAthlete, stats: ActivityStats):
         st.write(f"{athlete.follower_count}")
 
     # 2. Display shoes with some data
-    st.subheader("Shoes 👟")
-    shoe_cols = st.columns(3)
-    for idx, shoe in enumerate(athlete.shoes):
-        with shoe_cols[idx % 3]:
-            if not shoe.retired:
-                st.write(f"**Shoe Name**: {shoe.name}")
-                st.write(f"**Distance Covered**: {shoe.converted_distance} km")
+    if athlete.shoes:
+        st.subheader("Shoes 👟")
+        shoe_cols = st.columns(3)
+        for idx, shoe in enumerate(athlete.shoes):
+            with shoe_cols[idx % 3]:
+                if not shoe.retired:
+                    st.write(f"**Shoe Name**: {shoe.name}")
+                    st.write(f"**Distance Covered**: {shoe.converted_distance} km")
 
     # 3. Display activity stats (all-time, year-to-date, and recent)
     st.subheader("Activity Stats 📊")
@@ -59,13 +60,14 @@ def display_user_stats(athlete: DetailedAthlete, stats: ActivityStats):
         display_activity_stats("Month", stats.recent_run_totals)
 
     # 4. Display clubs with the link and image
-    st.subheader("Clubs 🏃‍♂️")
-    cols = st.columns(3)
-    for idx, club in enumerate(athlete.clubs):
-        with cols[idx % 3]:
-            club_img = club.cover_photo
-            club_link = f'<a href="https://www.strava.com/clubs/{club.url}" target="_blank"><img src="{club_img}" width="150"></a>'
-            st.markdown(club_link, unsafe_allow_html=True)
+    if athlete.clubs:
+        st.subheader("Clubs 🏃‍♂️")
+        cols = st.columns(3)
+        for idx, club in enumerate(athlete.clubs):
+            with cols[idx % 3]:
+                club_img = club.cover_photo
+                club_link = f'<a href="https://www.strava.com/clubs/{club.url}" target="_blank"><img src="{club_img}" width="150"></a>'
+                st.markdown(club_link, unsafe_allow_html=True)
 
 
 display_user_stats(
