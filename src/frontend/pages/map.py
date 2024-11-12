@@ -9,9 +9,9 @@ from frontend.utils import create_square
 from src.api.strava_model import ExplorerSegment
 
 
-def fetch_segments(bottom_left, top_right) -> List[ExplorerSegment]:
+def fetch_segments(bottom_left: list[float], top_right: list[float]) -> List[ExplorerSegment]:
     segments = st.session_state["strava_api"].explore_segments(
-        bottom_left_point=bottom_left, top_right_point=top_right
+        bottom_left_point=tuple(bottom_left), top_right_point=tuple(top_right)
     )
     return segments
 

@@ -42,8 +42,8 @@ class StravaAPI:
     @lru_cache()
     def explore_segments(
         self,
-        bottom_left_point: List[float],
-        top_right_point: List[float],
+        bottom_left_point: tuple[float],
+        top_right_point: tuple[float],
         activity_type: str = "running",
         min_cat: int = None,
         max_cat: int = None,
