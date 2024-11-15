@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-
 from src.frontend.utils import convert_seconds_to_hm
 
 

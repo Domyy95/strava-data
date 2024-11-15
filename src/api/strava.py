@@ -1,6 +1,7 @@
 from typing import List
 from functools import lru_cache
 import requests
+import json
 
 from src.api.strava_model import (
     ActivityStats,
@@ -116,3 +117,26 @@ class StravaAPI:
         url = self.get_url.format(endpoint=f"/athletes/{profile_id}/stats")
         api_response = requests.get(url)
         return ActivityStats.model_validate(api_response.json())
+
+    @lru_cache()
+    def autorization(client_id: str, client_secret: str, code: str):
+        """
+        Get the access_secret_token of a user with a post request
+        """
+        response = requests.post(
+            url=f"https://www.strava.com/oauth/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code"
+        )
+        StravaAPI.get_activities(response.json()["access_token"], code)
+
+    @lru_cache()
+    def get_activities(access_token: str, code: str):
+        data_dumps = []
+
+        for page in range(1, 5):
+            response = requests.get(
+                url=f"https://www.strava.com/api/v3/athlete/activities?access_token={access_token}&per_page={200}&page={page}",
+            )
+            data_dumps.append(response.json())
+
+        with open(f"runs{code}.json", "w") as outfile:
+            json.dump(data_dumps, outfile, indent=4)
