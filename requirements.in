@@ -6,3 +6,5 @@ streamlit
 streamlit_js_eval
 streamlit_folium
 tabulate
+datetime
+plotly
