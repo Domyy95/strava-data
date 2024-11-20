@@ -70,7 +70,10 @@ def display_user_stats(athlete: DetailedAthlete, stats: ActivityStats):
                 st.markdown(club_link, unsafe_allow_html=True)
 
 
-display_user_stats(
-    st.session_state["strava_api"].authenticated_athlete,
-    st.session_state["strava_api"].authenticated_athlete_stats,
-)
+if "strava_api" not in st.session_state:
+    st.warning("You Need To Login")
+else:
+    display_user_stats(
+        st.session_state["strava_api"].authenticated_athlete,
+        st.session_state["strava_api"].authenticated_athlete_stats,
+    )

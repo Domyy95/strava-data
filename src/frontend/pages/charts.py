@@ -2,6 +2,7 @@ import streamlit as st
 from src.frontend.utils import get_weeks, get_data_run
 import plotly.graph_objs as go
 
+
 st.title("🔑 Personal Running Charts")
 
 
@@ -33,17 +34,7 @@ def display_charts(code):
     st.plotly_chart(fig_hr)
 
 
-def display_first_part():
-    st.subheader("Ottieni Codice Accesso")
-    st.write("Accedi con strava per visualizzare i grafici 🔑")
-    link = f"http://www.strava.com/oauth/authorize?client_id={st.session_state['strava_api'].client_id}<&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=activity:read_all"
-    st.link_button("Login With Strava", link)
-
-    auth_code_session = st.text_input("Incolla il Codice", "")
-    if st.button("Ottieni Dati", use_container_width=True):
-        with st.spinner("waiting"):
-            st.session_state["strava_api"].autorization(auth_code_session)
-            display_charts(auth_code_session)
-
-
-display_first_part()
+if "strava_api" not in st.session_state:
+    st.warning("You Need To Login")
+else:
+    display_charts(st.session_state["strava_api"].auth_code)

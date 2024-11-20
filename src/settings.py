@@ -31,3 +31,7 @@ class Settings(BaseSettings):
 
 def get_settings() -> Settings:
     return Settings()
+
+
+def get_Client_ID():
+    return Settings().client_id

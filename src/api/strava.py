@@ -18,7 +18,8 @@ BASE_URL = "https://www.strava.com/api/v3/"
 
 
 class StravaAPI:
-    def __init__(self, access_token, client_id, client_secret):
+    def __init__(self, access_token, client_id, client_secret, auth_code):
+        self.auth_code = auth_code
         self.client_secret = client_secret
         self.client_id = client_id
         self.access_token = access_token
@@ -120,25 +121,26 @@ class StravaAPI:
         api_response = requests.get(url)
         return ActivityStats.model_validate(api_response.json())
 
-    def autorization(self, code: str):
+    @lru_cache()
+    def autorization(self):
         """
         Get the access_secret_token of a user with a post request, is not the default access_token
         but is just a validate token for this validate session
         """
         response = requests.post(
-            url=f"https://www.strava.com/oauth/token?client_id={self.client_id}&client_secret={self.client_secret}&code={code}&grant_type=authorization_code"
+            url=f"https://www.strava.com/oauth/token?client_id={self.client_id}&client_secret={self.client_secret}&code={self.auth_code}&grant_type=authorization_code"
         )
-        StravaAPI.get_activities(response.json()["access_token"], code)
+        self.get_activities(response.json()["access_token"])
 
     @lru_cache()
-    def get_activities(access_token_session: str, id_json: str):
+    def get_activities(self, token):
         data_dumps = []
 
         for page in range(1, 5):
             response = requests.get(
-                url=f"https://www.strava.com/api/v3/athlete/activities?access_token={access_token_session}&per_page={200}&page={page}",
+                url=f"https://www.strava.com/api/v3/athlete/activities?access_token={token}&per_page={200}&page={page}",
             )
             data_dumps.append(response.json())
 
-        with open(f"runs{id_json}.json", "w") as outfile:
+        with open(f"runs{self.auth_code}.json", "w") as outfile:
             json.dump(data_dumps, outfile, indent=4)

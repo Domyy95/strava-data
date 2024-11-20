@@ -155,28 +155,35 @@ def build_compare_data(activity1: str, activity2: str):
     st.dataframe(df)
 
 
+def load_page():
+    col1, col2 = st.columns(2)
+
+    with col1:
+        link1 = st.text_input("Activity Link 1")
+
+    with col2:
+        link2 = st.text_input("Activity Link 2")
+
+    if link1 and link2:
+        link1_valid = validate_strava_activity_link(link1)
+        link2_valid = validate_strava_activity_link(link2)
+
+        if link1_valid and link2_valid:
+            if st.button("Compute"):
+                activity1, activity2 = get_activities_data(link1, link2)
+                if activity1 and activity2:
+                    build_compare_data(activity1, activity2)
+
+        else:
+            if not link1_valid:
+                st.write("Link 1 is not a valid Strava activity link.")
+            if not link2_valid:
+                st.write("Link 2 is not a valid Strava activity link.")
+
+
 st.title("⏱️ Compare Runs")
 
-col1, col2 = st.columns(2)
-
-with col1:
-    link1 = st.text_input("Activity Link 1")
-
-with col2:
-    link2 = st.text_input("Activity Link 2")
-
-if link1 and link2:
-    link1_valid = validate_strava_activity_link(link1)
-    link2_valid = validate_strava_activity_link(link2)
-
-    if link1_valid and link2_valid:
-        if st.button("Compute"):
-            activity1, activity2 = get_activities_data(link1, link2)
-            if activity1 and activity2:
-                build_compare_data(activity1, activity2)
-
-    else:
-        if not link1_valid:
-            st.write("Link 1 is not a valid Strava activity link.")
-        if not link2_valid:
-            st.write("Link 2 is not a valid Strava activity link.")
+if "strava_api" not in st.session_state:
+    st.warning("You Need To Login")
+else:
+    load_page()
