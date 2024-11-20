@@ -1,19 +1,14 @@
 import streamlit as st
-import settings
-from src.api.strava import StravaAPI
 from src.frontend.utils import get_weeks, get_data_run
 import plotly.graph_objs as go
 
-
 st.title("🔑 Personal Running Charts")
-secret_token = settings.Settings()
 
 
-def display_charts(access_token: str):
+def display_charts(code):
     st.write("charts")
-    StravaAPI.autorization(secret_token.client_id, secret_token.client_secret, access_token)
     date_time, time_week_x = get_weeks(4)
-    data_run, km, min, gain = get_data_run(time_week_x, access_token)
+    data_run, km, min, gain = get_data_run(time_week_x, code)
     fig_distance = go.Figure()
     fig_hr = go.Figure()
     fig_gain = go.Figure()
@@ -38,16 +33,17 @@ def display_charts(access_token: str):
     st.plotly_chart(fig_hr)
 
 
-def display_first_part(client_id: str):
+def display_first_part():
     st.subheader("Ottieni Codice Accesso")
     st.write("Accedi con strava per visualizzare i grafici 🔑")
-    link = f"http://www.strava.com/oauth/authorize?client_id={client_id}<&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=activity:read_all"
+    link = f"http://www.strava.com/oauth/authorize?client_id={st.session_state['strava_api'].client_id}<&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=activity:read_all"
     st.link_button("Login With Strava", link)
 
-    access_token = st.text_input("Incolla il Codice", "")
+    auth_code_session = st.text_input("Incolla il Codice", "")
     if st.button("Ottieni Dati", use_container_width=True):
         with st.spinner("waiting"):
-            display_charts(access_token)
+            st.session_state["strava_api"].autorization(auth_code_session)
+            display_charts(auth_code_session)
 
 
-display_first_part(settings.Settings().client_id)
+display_first_part()

@@ -18,7 +18,9 @@ BASE_URL = "https://www.strava.com/api/v3/"
 
 
 class StravaAPI:
-    def __init__(self, access_token):
+    def __init__(self, access_token, client_id, client_secret):
+        self.client_secret = client_secret
+        self.client_id = client_id
         self.access_token = access_token
         self.get_url = BASE_URL + "{endpoint}" + "?access_token=" + self.access_token
         self.authenticated_athlete = self.__get_authenticated_athlete()
@@ -118,25 +120,25 @@ class StravaAPI:
         api_response = requests.get(url)
         return ActivityStats.model_validate(api_response.json())
 
-    @lru_cache()
-    def autorization(client_id: str, client_secret: str, code: str):
+    def autorization(self, code: str):
         """
-        Get the access_secret_token of a user with a post request
+        Get the access_secret_token of a user with a post request, is not the default access_token
+        but is just a validate token for this validate session
         """
         response = requests.post(
-            url=f"https://www.strava.com/oauth/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code"
+            url=f"https://www.strava.com/oauth/token?client_id={self.client_id}&client_secret={self.client_secret}&code={code}&grant_type=authorization_code"
         )
         StravaAPI.get_activities(response.json()["access_token"], code)
 
     @lru_cache()
-    def get_activities(access_token: str, code: str):
+    def get_activities(access_token_session: str, id_json: str):
         data_dumps = []
 
         for page in range(1, 5):
             response = requests.get(
-                url=f"https://www.strava.com/api/v3/athlete/activities?access_token={access_token}&per_page={200}&page={page}",
+                url=f"https://www.strava.com/api/v3/athlete/activities?access_token={access_token_session}&per_page={200}&page={page}",
             )
             data_dumps.append(response.json())
 
-        with open(f"runs{code}.json", "w") as outfile:
+        with open(f"runs{id_json}.json", "w") as outfile:
             json.dump(data_dumps, outfile, indent=4)
