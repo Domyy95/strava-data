@@ -1,6 +1,7 @@
 from typing import List
 from functools import lru_cache
 import requests
+import json
 
 from src.api.strava_model import (
     ActivityStats,
@@ -22,6 +23,7 @@ class StravaAPI:
         self.get_url = BASE_URL + "{endpoint}" + "?access_token=" + self.access_token
         self.authenticated_athlete = self.__get_authenticated_athlete()
         self.authenticated_athlete_stats = self.get_athlete_stats(self.authenticated_athlete.id)
+        self.get_activities()
 
     def handle_api_error(self, api_response, activity_id: int):
         """Handles API errors and raises ValueError if the activity is not found."""
@@ -116,3 +118,20 @@ class StravaAPI:
         url = self.get_url.format(endpoint=f"/athletes/{profile_id}/stats")
         api_response = requests.get(url)
         return ActivityStats.model_validate(api_response.json())
+
+    @lru_cache()
+    def get_activities(self, max_pages: int = 10, per_page: int = 200):
+        url = f"https://www.strava.com/api/v3/athlete/activities?access_token={self.access_token}&per_page={per_page}&page="
+
+        data_dumps = []
+        page = 1
+        while True:
+            response = requests.get(url + str(page))
+            if not response.json() or page > max_pages:
+                break
+
+            page += 1
+            data_dumps.append(response.json())
+
+        with open("runs.json", "w") as outfile:
+            json.dump(data_dumps, outfile, indent=4)
