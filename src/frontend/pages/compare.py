@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from src.frontend.utils import convert_seconds_to_hm
+from src.frontend.utils.utils import convert_seconds_to_hm
 
 
 def validate_strava_activity_link(link):

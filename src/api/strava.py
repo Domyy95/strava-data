@@ -18,13 +18,12 @@ BASE_URL = "https://www.strava.com/api/v3/"
 
 
 class StravaAPI:
-    def __init__(self, access_token, client_id, client_secret):
-        self.client_secret = client_secret
-        self.client_id = client_id
+    def __init__(self, access_token):
         self.access_token = access_token
         self.get_url = BASE_URL + "{endpoint}" + "?access_token=" + self.access_token
         self.authenticated_athlete = self.__get_authenticated_athlete()
         self.authenticated_athlete_stats = self.get_athlete_stats(self.authenticated_athlete.id)
+        self.get_activities()
 
     def handle_api_error(self, api_response, activity_id: int):
         """Handles API errors and raises ValueError if the activity is not found."""
@@ -120,25 +119,19 @@ class StravaAPI:
         api_response = requests.get(url)
         return ActivityStats.model_validate(api_response.json())
 
-    def autorization(self, code: str):
-        """
-        Get the access_secret_token of a user with a post request, is not the default access_token
-        but is just a validate token for this validate session
-        """
-        response = requests.post(
-            url=f"https://www.strava.com/oauth/token?client_id={self.client_id}&client_secret={self.client_secret}&code={code}&grant_type=authorization_code"
-        )
-        StravaAPI.get_activities(response.json()["access_token"], code)
-
     @lru_cache()
-    def get_activities(access_token_session: str, id_json: str):
-        data_dumps = []
+    def get_activities(self, max_pages: int = 10, per_page: int = 200):
+        url = f"https://www.strava.com/api/v3/athlete/activities?access_token={self.access_token}&per_page={per_page}&page="
 
-        for page in range(1, 5):
-            response = requests.get(
-                url=f"https://www.strava.com/api/v3/athlete/activities?access_token={access_token_session}&per_page={200}&page={page}",
-            )
+        data_dumps = []
+        page = 1
+        while True:
+            response = requests.get(url + str(page))
+            if not response.json() or page > max_pages:
+                break
+
+            page += 1
             data_dumps.append(response.json())
 
-        with open(f"runs{id_json}.json", "w") as outfile:
+        with open("runs.json", "w") as outfile:
             json.dump(data_dumps, outfile, indent=4)

@@ -5,7 +5,7 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 from streamlit_js_eval import get_geolocation
-from frontend.utils import create_square
+from src.frontend.utils.utils import create_square
 from src.api.strava_model import ExplorerSegment
 
 

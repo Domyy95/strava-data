@@ -8,7 +8,7 @@ def home():
     user_stats = st.Page(f"{front_end_dir}/user_stats.py", title="Personal Stats", icon="👤")
     run_comparison = st.Page(f"{front_end_dir}/compare.py", title="Compare Your Runs", icon="⏱️")
     map_page = st.Page(f"{front_end_dir}/map.py", title="Segment Map Search", icon="🗺️")
-    chart_page = st.Page(f"{front_end_dir}/get_token.py", title="Charts Page", icon="🔑")
+    chart_page = st.Page(f"{front_end_dir}/charts.py", title="Charts Page", icon="📊")
     # my_koms = st.Page(f"{front_end_dir}/my_koms.py", title="My Koms", icon="")
     # last_activities = st.Page(f"{front_end_dir}/last_activities.py", title="Last Activities", icon="")
 
