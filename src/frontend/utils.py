@@ -1,6 +1,8 @@
 from math import pi, cos
 from datetime import datetime, timedelta
 import json
+from dateutil.relativedelta import relativedelta
+import plotly.graph_objs as go
 
 
 def create_square(lat, lon, square_size=1600):
@@ -42,28 +44,30 @@ def convert_seconds_to_hm(seconds):
     return result
 
 
-def get_data_run(time_week_x, code):
-    runs_dict = {}
-    first_day = time_week_x[0].split(" ")[0].replace("/", "-")
-
-    for number_week_counter in range(len(time_week_x)):
-        runs_dict[number_week_counter] = [0, 0, 0]
-
-    with open(f"runs{code}.json") as json_run:
+def get_data_run(block, span):
+    with open("runs.json") as json_run:
         runs = json.load(json_run)
+        return iterate_over_runs(runs, span, block)
 
-        for page in runs:
-            for run in page:
-                if run["sport_type"] == "Run" or run["sport_type"] == "TrailRun":
-                    run_date = run["start_date"].split("T")[0]
-                    weeks_delta = weeks_between(first_day, run_date)
-                    if weeks_delta >= 0:
-                        km, time_duration, elevation = runs_dict[weeks_delta]
-                        runs_dict[weeks_delta] = [
-                            km + run["distance"],
-                            time_duration + run["elapsed_time"],
-                            elevation + run["total_elevation_gain"],
-                        ]
+
+def iterate_over_runs(runs, span, block):
+    runs_dict = {}
+
+    for n in range(span):
+        runs_dict[n] = [0, 0, 0]
+
+    for page in runs:
+        for run in page:
+            if run["sport_type"] == "Run" or run["sport_type"] == "TrailRun":
+                run_date = run["start_date"].split("T")[0]
+                span_delta = time_beetween(run_date, block)
+                if span_delta < span:
+                    km, time_duration, elevation = runs_dict[span_delta]
+                    runs_dict[span_delta] = [
+                        km + run["distance"],
+                        time_duration + run["elapsed_time"],
+                        elevation + run["total_elevation_gain"],
+                    ]
 
     distance, times, gain = [], [], []
 
@@ -72,78 +76,74 @@ def get_data_run(time_week_x, code):
         times.append(t / 3600)
         gain.append(d)
 
-    return runs_dict, distance, times, gain
+    x = build_x_axis(block, span)
+
+    print(x, runs_dict)
+
+    return x[::-1], distance[::-1], gain[::-1], times[::-1]
 
 
-def get_weeks(years):
-    # Parse i dati di input
+def build_x_axis(block, span):
+    current_date = datetime.now()
+    ranges = []
+    for _ in range(span):
+        if block == "Months":
+            # Start and end of the current month
+            range_start = current_date.replace(day=1)
+            range_end = (range_start + relativedelta(months=1)) - relativedelta(days=1)
+            current_date = range_start - relativedelta(months=1)  # Move to the previous month
+        elif block == "Weeks":
+            range_start = current_date - timedelta(days=current_date.weekday())  # Monday
+            range_end = range_start + timedelta(days=6)  # Sunday
+            current_date = range_start - timedelta(days=7)  # Move to the previous week
+        elif block == "Years":
+            # Start and end of the current year
+            range_start = current_date.replace(month=1, day=1)
+            range_end = current_date.replace(month=12, day=31)
+            current_date = range_start - relativedelta(years=1)  # Move to the previous year
 
-    current_datetime = datetime.now().strftime("%Y-%m-%d")
-    input_date = datetime.strptime(current_datetime, "%Y-%m-%d")
+        ranges.append(range_start.strftime("%Y-%m-%d") + " - " + range_end.strftime("%Y-%m-%d"))
 
-    # Ottieni l'anno corrente e i tre anni precedenti
-    current_year = input_date.year
-    target_years = [current_year - i for i in range(years, 0, -1)] + [current_year]
-    # Lista per contenere le informazioni su tutte le settimane
-    all_weeks_info = []
-
-    # Cicla su ciascun anno nei target_years
-    for target_year in target_years:
-        # Trova il primo lunedì dell'anno
-        first_day_of_year = datetime(target_year, 1, 1)
-        first_monday = first_day_of_year + timedelta(days=(7 - first_day_of_year.weekday()) % 7)
-
-        # Scorri attraverso ogni settimana dell'anno
-        current_monday = first_monday
-        week_number = 1
-
-        while current_monday.year == target_year:
-            # Calcola la domenica di quella settimana
-            current_sunday = current_monday + timedelta(days=6)
-
-            # Se siamo nell'anno corrente e superiamo la data fissata, interrompi il ciclo
-            if target_year == current_year and current_monday > input_date:
-                break
-
-            # Aggiungi le informazioni della settimana alla lista
-            all_weeks_info.append(
-                {
-                    "year": target_year,
-                    "week_number": week_number,
-                    "monday_start": current_monday.date(),
-                    "sunday_finish": current_sunday.date(),
-                }
-            )
-
-            # Passa al lunedì successivo
-            current_monday += timedelta(weeks=1)
-            week_number += 1
-
-    # Ordina le settimane in ordine cronologico basato sulla data di inizio
-    all_weeks_info.sort(key=lambda week: week["monday_start"])
-
-    date_time_x = []
-    date_time = []
-
-    # Stampa i risultati
-    for week in all_weeks_info:
-        date_time_x.append(
-            f"{week['year']}-{week['monday_start'].month}/{week['monday_start'].day} to {week['sunday_finish'].month}/{week['sunday_finish'].day}"
-        )
-        date_time.append([week["year"], [week["monday_start"], week["sunday_finish"]]])
-
-    return date_time, date_time_x
+    return ranges
 
 
-def weeks_between(start_date_str, end_date_str):
-    # Converti le stringhe di data in oggetti datetime
-    start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
-    end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+def time_beetween(run_date, block):
+    current_date = datetime.now()
+    run_date = datetime.strptime(run_date, "%Y-%m-%d")
+    if block == "Weeks":
+        current_start_of_week = current_date - timedelta(days=current_date.weekday())
+        run_start_of_week = run_date - timedelta(days=run_date.weekday())
+        # Calculate the difference in days and divide by 7
+        difference = (current_start_of_week - run_start_of_week).days
+        return abs(difference // 7)
+    elif block == "Months":
+        # Use relativedelta to calculate months
+        delta = relativedelta(current_date, run_date)
+        return abs(delta.years * 12 + delta.months)
+    elif block == "Years":
+        # Use relativedelta to calculate years
+        delta = relativedelta(current_date, run_date)
+        return abs(delta.years)
 
-    # Calcola la differenza tra le due date in giorni
-    days_difference = (end_date - start_date).days
 
-    # Converti la differenza in settimane
-    weeks_difference = days_difference // 7  # Divisione intera per ottenere settimane complete
+def make_charts_figure(x, km, gain, mins, chart, color):
+    if chart != "bar":
+        fig_distance = go.Figure()
+        fig_hr = go.Figure()
+        fig_gain = go.Figure()
 
-    return weeks_difference
+        fig_distance.add_trace(go.Scatter(x=x, y=km, marker_color=color))
+        fig_gain.add_trace(go.Scatter(x=x, y=gain, marker_color=color))
+        fig_hr.add_trace(go.Scatter(x=x, y=mins, marker_color=color))
+
+        return fig_distance, fig_gain, fig_hr
+    else:
+        fig_distance = go.Figure()
+        fig_hr = go.Figure()
+        fig_gain = go.Figure()
+
+        fig_distance.add_trace(go.Bar(x=x, y=km, marker_color=color))
+        fig_gain.add_trace(go.Bar(x=x, y=gain, marker_color=color))
+        fig_hr.add_trace(go.Bar(x=x, y=mins, marker_color=color))
+
+        return fig_distance, fig_gain, fig_hr

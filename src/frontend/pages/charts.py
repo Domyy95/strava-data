@@ -1,37 +1,54 @@
 import streamlit as st
-from src.frontend.utils import get_weeks, get_data_run
-import plotly.graph_objs as go
+from src.frontend.utils import get_data_run, make_charts_figure
 
+st.title("📊 Personal Running Charts")
 
-st.title("🔑 Personal Running Charts")
+dict_date_times = {
+    "Years": ("2", "3", "4", "5"),
+    "Months": ("3", "6", "12", "18", "24", "30"),
+    "Weeks": ("4", "8", "12", "16", "24", "30", "40"),
+}
+colors = ["blue", "red", "white"]
+type_plot = ["scatter", "bar"]
 
 
 def display_charts(code):
-    st.write("charts")
-    date_time, time_week_x = get_weeks(4)
-    data_run, km, min, gain = get_data_run(time_week_x, code)
-    fig_distance = go.Figure()
-    fig_hr = go.Figure()
-    fig_gain = go.Figure()
+    topcol1, topcol2 = st.columns(2)
 
-    fig_distance.add_trace(go.Scatter(x=time_week_x, y=km))
-    fig_gain.add_trace(go.Scatter(x=time_week_x, y=gain))
-    fig_hr.add_trace(go.Scatter(x=time_week_x, y=min))
+    with topcol1:
+        block = st.selectbox("Grandezza Blocco Base", dict_date_times.keys())
+
+        span = st.selectbox("Span Temporale", dict_date_times[block])
+        st.write("Watch my data over ", span, block)
+
+    with topcol2:
+        chart = st.selectbox("Tipologia Grafico", type_plot)
+
+        color = st.selectbox("Colore grafico", colors)
+
+        st.write("Watch my data on ", chart, color)
+
+    x, km, gain, mins = get_data_run(block, int(span))
+    fig_distance, fig_gain, fig_hr = make_charts_figure(x, km, gain, mins, chart, color)
 
     st.write("")
     st.write("")
     st.write("Distance Chart")
+
     st.plotly_chart(fig_distance)
+    col1, col2 = st.columns(2)
 
-    st.write("")
-    st.write("")
-    st.write("Elevation Gain Chart")
-    st.plotly_chart(fig_gain)
+    with col1:
+        st.write("")
+        st.write("")
+        st.write("Elevation Gain Chart")
+        st.plotly_chart(fig_gain)
 
-    st.write("")
-    st.write("")
-    st.write("Hour Chart")
-    st.plotly_chart(fig_hr)
+    with col2:
+        st.write("")
+        st.write("")
+        st.write("Hour Chart")
+        st.plotly_chart(fig_hr)
 
 
 if "strava_api" not in st.session_state:

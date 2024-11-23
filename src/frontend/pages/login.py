@@ -18,8 +18,8 @@ st.title("Login Page")
 
 def display_first_part(client_id):
     st.subheader("Ottieni Codice Accesso")
-    st.write("Accedi con strava per visualizzare i grafici", " 🔑")
-    link = f"http://www.strava.com/oauth/authorize?client_id={client_id}<&response_type=code&redirect_uri=http://localhost:8506/&approval_prompt=force&scope=activity:read_all"
+    st.write("Accedi con strava per visualizzare i grafici", " 📊")
+    link = f"http://www.strava.com/oauth/authorize?client_id={client_id}<&response_type=code&redirect_uri=http://localhost:8505/&approval_prompt=force&scope=activity:read_all"
     if st.link_button("Login With Strava", link):
         st.markdown(
             """
