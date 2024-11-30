@@ -9,18 +9,21 @@ class Settings(BaseSettings):
     client_id: str = Field()
     client_secret: str = Field()
     website_url: str = Field()
-    auth_code: str = ""
     access_token: str = ""
 
-    def get_access_token(self, auth_code):
-        self.auth_code = auth_code
-        self.retrieve_access_token()
+    @property
+    def authorize_url(self) -> str:
+        return (
+            f"http://www.strava.com/oauth/authorize"
+            f"?client_id={self.client_id}&response_type=code"
+            f"&redirect_uri={self.website_url}/&approval_prompt=force&scope=activity:read_all"
+        )
 
-    def retrieve_access_token(self):
+    def retrieve_access_token(self, auth_code: str):
         payload: dict = {
             "client_id": self.client_id,
             "client_secret": self.client_secret,
-            "code": self.auth_code,
+            "code": auth_code,
             "grant_type": "authorization_code",
             "f": "json",
         }

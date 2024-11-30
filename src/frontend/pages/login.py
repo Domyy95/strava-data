@@ -1,12 +1,7 @@
 import streamlit as st
-from settings import Settings
 
 
-def login_page(settings: Settings):
-    client_id = settings.client_id
-    website_url = settings.website_url
-    authorize_url = f"http://www.strava.com/oauth/authorize?client_id={client_id}&response_type=code&redirect_uri={website_url}/&approval_prompt=force&scope=activity:read_all"
-
+def login_page(authorize_url):
     st.title("Login Page")
     st.write("Accedi con strava per visualizzare i grafici", " 🔑")
     if st.link_button("Login With Strava", authorize_url):

@@ -18,11 +18,16 @@ def load_strava_api(access_token):
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-settings = load_settings()
+if "settings" not in st.session_state:
+    st.session_state["settings"] = load_settings()
+
 if not st.session_state.logged_in:
-    login_page(settings)
+    login_page(
+        st.session_state["settings"].authorize_url,
+    )
 else:
     if "strava_api" not in st.session_state:
-        settings.get_access_token(st.session_state.auth_code)
-        st.session_state["strava_api"] = load_strava_api(settings.access_token)
+        st.session_state["settings"].retrieve_access_token(st.session_state["auth_code"])
+        st.session_state["strava_api"] = load_strava_api(st.session_state["settings"].access_token)
+
     home()
