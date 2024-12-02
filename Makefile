@@ -29,8 +29,9 @@ help:
 
 
 install-pip-tools:
-	pip install --upgrade pip
-	pip install --upgrade pip-tools
+	pip install --upgrade uv
+	uv pip install -U pip
+	uv pip install pip-tools
 
 requirements-dev.txt: requirements-dev.in install-pip-tools
 	pip-compile --upgrade --resolver backtracking --output-file=$@ requirements-dev.in
@@ -39,10 +40,10 @@ requirements.txt: requirements.in install-pip-tools
 	pip-compile --upgrade --resolver backtracking --output-file=$@ requirements.in
 
 install-dev: requirements-dev.txt
-	pip install  -r requirements-dev.txt
+	uv pip install -r requirements-dev.txt
 
 install: requirements.txt
-	pip install  -r requirements.txt
+	uv pip install -r requirements.txt
 
 setup-dev-env: install-dev
 	pre-commit install
