@@ -1,6 +1,7 @@
 from typing import List
 from functools import lru_cache
 import requests
+import json
 
 from src.api.strava_model import (
     ActivityStats,
@@ -17,7 +18,10 @@ BASE_URL = "https://www.strava.com/api/v3/"
 
 
 class StravaAPI:
-    def __init__(self, access_token):
+    def __init__(self, access_token, client_id, client_secret, auth_code):
+        self.auth_code = auth_code
+        self.client_secret = client_secret
+        self.client_id = client_id
         self.access_token = access_token
         self.get_url = BASE_URL + "{endpoint}" + "?access_token=" + self.access_token
         self.authenticated_athlete = self.__get_authenticated_athlete()
@@ -116,3 +120,27 @@ class StravaAPI:
         url = self.get_url.format(endpoint=f"/athletes/{profile_id}/stats")
         api_response = requests.get(url)
         return ActivityStats.model_validate(api_response.json())
+
+    @lru_cache()
+    def autorization(self):
+        """
+        Get the access_secret_token of a user with a post request, is not the default access_token
+        but is just a validate token for this validate session
+        """
+        response = requests.post(
+            url=f"https://www.strava.com/oauth/token?client_id={self.client_id}&client_secret={self.client_secret}&code={self.auth_code}&grant_type=authorization_code"
+        )
+        self.get_activities(response.json()["access_token"])
+
+    @lru_cache()
+    def get_activities(self, token):
+        data_dumps = []
+
+        for page in range(1, 5):
+            response = requests.get(
+                url=f"https://www.strava.com/api/v3/athlete/activities?access_token={token}&per_page={200}&page={page}",
+            )
+            data_dumps.append(response.json())
+
+        with open(f"runs{self.auth_code}.json", "w") as outfile:
+            json.dump(data_dumps, outfile, indent=4)

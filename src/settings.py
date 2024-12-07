@@ -33,4 +33,10 @@ class Settings(BaseSettings):
             res.raise_for_status()
             access_token = res.json()["access_token"]
 
-        self.access_token = access_token
+def get_settings() -> Settings:
+    return Settings()
+
+
+def get_Client_ID():
+    return Settings().client_id
+
