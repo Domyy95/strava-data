@@ -1,10 +1,9 @@
-pandas
-pydantic==2.*
-pydantic-settings==2.*
-folium
-streamlit
+tabulate
 streamlit_js_eval
 streamlit_folium
-tabulate
-datetime
-plotly
+streamlit
+pydantic==2.*
+pydantic-settings==2.*
+pandas
+folium
+

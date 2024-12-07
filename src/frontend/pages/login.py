@@ -1,4 +1,5 @@
 import streamlit as st
+
 from src.settings import get_settings, get_Client_ID
 from src.api.strava import StravaAPI
 
@@ -21,14 +22,6 @@ def display_first_part(client_id):
     st.write("Accedi con strava per visualizzare i grafici", " 📊")
     link = f"http://www.strava.com/oauth/authorize?client_id={client_id}<&response_type=code&redirect_uri=http://localhost:8505/&approval_prompt=force&scope=activity:read_all"
     if st.link_button("Login With Strava", link):
-        st.markdown(
-            """
-            <script>
-            window.close();
-            </script>
-            """,
-            unsafe_allow_html=True,
-        )
 
 
 if "code" not in st.query_params.keys():
